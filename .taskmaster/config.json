@@ -1,0 +1,27 @@
+{
+  "project": {
+    "name": "AcquireFlow",
+    "description": "Real estate investment automation platform for bulk property offers via email and SMS",
+    "type": "next-js-app",
+    "framework": "Next.js 14",
+    "language": "TypeScript",
+    "sprint_duration": "14 days",
+    "core_mission": "Build automated bulk offer system enabling 200+ personalized offers to agents with one click"
+  },
+  "models": {
+    "main": "claude-3-5-sonnet-20241022",
+    "research": "claude-3-5-sonnet-20241022",
+    "fallback": "gpt-4"
+  },
+  "settings": {
+    "auto_save": true,
+    "task_numbering": true,
+    "generate_subtasks": true,
+    "sprint_focused": true
+  },
+  "sprint_priorities": {
+    "must_have": ["listings_scraping", "property_filtering", "offer_templates", "bulk_sending", "campaign_tracking"],
+    "should_have": ["response_capture", "response_management", "follow_up_automation"],
+    "nice_to_have": ["analytics", "agent_scoring", "ui_polish"]
+  }
+} 

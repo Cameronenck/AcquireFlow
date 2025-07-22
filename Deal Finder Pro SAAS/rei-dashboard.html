@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REI Pro - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Light Mode Colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin-bottom: 32px;
+            border-radius: 12px;
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .logo-icon {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding: 0 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin-bottom: 4px;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            background: var(--accent-red);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .breadcrumb {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-blue);
+        }
+
+        .btn.primary {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .btn.primary:hover {
+            background: #2563eb;
+        }
+
+        .btn.success {
+            background: var(--accent-green);
+            color: white;
+            border-color: var(--accent-green);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .user-menu:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Page Content */
+        .page-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            background: var(--bg-secondary);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.2s ease;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .stat-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .stat-change.positive {
+            color: var(--accent-green);
+        }
+
+        .stat-change.negative {
+            color: var(--accent-red);
+        }
+
+        /* Chart Cards */
+        .chart-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            grid-column: span 2;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Activity Feed */
+        .activity-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 24px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .activity-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .action-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .action-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 12px;
+        }
+
+        .action-title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .action-description {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                height: 100vh;
+                z-index: 1000;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .page-content {
+                padding: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-card {
+                grid-column: span 1;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dashboard-grid > * {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--accent-green);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">🏠</div>
+                <div class="logo-text">REI Pro</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Platform</div>
+                <a href="rei-dashboard.html" class="nav-item active">
+                    <div class="nav-icon">📊</div>
+                    <span>Dashboard</span>
+                </a>
+                <a href="index.html" class="nav-item">
+                    <div class="nav-icon">🎯</div>
+                    <span>Auto Offers</span>
+                    <span class="nav-badge">24</span>
+                </a>
+                <a href="properties.html" class="nav-item">
+                    <div class="nav-icon">🏘️</div>
+                    <span>Properties</span>
+                </a>
+                <a href="analytics.html" class="nav-item">
+                    <div class="nav-icon">📈</div>
+                    <span>Analytics</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Management</div>
+                <a href="contacts.html" class="nav-item">
+                    <div class="nav-icon">👥</div>
+                    <span>Contacts</span>
+                </a>
+                <a href="finances.html" class="nav-item">
+                    <div class="nav-icon">💰</div>
+                    <span>Finances</span>
+                </a>
+                <a href="documents.html" class="nav-item">
+                    <div class="nav-icon">📄</div>
+                    <span>Documents</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <div class="nav-icon">⚙️</div>
+                    <span>Settings</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    <button class="btn" onclick="toggleSidebar()">☰</button>
+                    <div>
+                        <h1 class="page-title">Dashboard</h1>
+                        <div class="breadcrumb">Overview / Portfolio Summary</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn" onclick="toggleTheme()">🌙 Theme</button>
+                    <button class="btn primary" onclick="showQuickOffer()">➕ Quick Offer</button>
+                    <div class="user-menu" onclick="showUserMenu()">
+                        <div class="user-avatar">JD</div>
+                        <span>John Doe</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <div class="page-content">
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="index.html" class="action-card">
+                        <div class="action-icon" style="background: #dbeafe; color: var(--accent-blue);">🎯</div>
+                        <div class="action-title">Create Auto Offer</div>
+                        <div class="action-description">Set up automated offers</div>
+                    </a>
+                    <a href="properties.html" class="action-card">
+                        <div class="action-icon" style="background: #dcfce7; color: var(--accent-green);">🔍</div>
+                        <div class="action-title">Find Properties</div>
+                        <div class="action-description">Search investment opportunities</div>
+                    </a>
+                    <a href="analytics.html" class="action-card">
+                        <div class="action-icon" style="background: #fef3c7; color: var(--accent-orange);">📊</div>
+                        <div class="action-title">View Analytics</div>
+                        <div class="action-description">Performance insights</div>
+                    </a>
+                    <a href="contacts.html" class="action-card">
+                        <div class="action-icon" style="background: #e0e7ff; color: var(--accent-purple);">👥</div>
+                        <div class="action-title">Manage Contacts</div>
+                        <div class="action-description">CRM and relationships</div>
+                    </a>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Portfolio Value</div>
+                            <div class="stat-icon" style="background: #dbeafe; color: var(--accent-blue);">🏠</div>
+                        </div>
+                        <div class="stat-value">$2.4M</div>
+                        <div class="stat-change positive">
+                            <span>↗</span>
+                            <span>+12.5% this month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Active Offers</div>
+                            <div class="stat-icon" style="background: #dcfce7; color: var(--accent-green);">🎯</div>
+                        </div>
+                        <div class="stat-value">47</div>
+                        <div class="stat-change positive">
+                            <span>↗</span>
+                            <span>+8 this week</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Acceptance Rate</div>
+                            <div class="stat-icon" style="background: #e0e7ff; color: var(--accent-purple);">📈</div>
+                        </div>
+                        <div class="stat-value">18.3%</div>
+                        <div class="stat-change positive">
+                            <span>↗</span>
+                            <span>+2.1% vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-title">Monthly ROI</div>
+                            <div class="stat-icon" style="background: #fef3c7; color: var(--accent-orange);">💰</div>
+                        </div>
+                        <div class="stat-value">22.8%</div>
+                        <div class="stat-change positive">
+                            <span>↗</span>
+                            <span>+1.4% improvement</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Portfolio Performance Chart -->
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Portfolio Performance</h3>
+                            <div class="header-actions">
+                                <select class="btn" onchange="updateChartPeriod(this.value)">
+                                    <option value="7d">7 Days</option>
+                                    <option value="30d" selected>30 Days</option>
+                                    <option value="90d">90 Days</option>
+                                    <option value="1y">1 Year</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="portfolioChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="activity-card">
+                        <div class="activity-header">
+                            <h3 class="chart-title">Recent Activity</h3>
+                            <button class="btn" onclick="viewAllActivity()">View All</button>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: #dcfce7; color: var(--accent-green);">✅</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Offer Accepted</div>
+                                <div class="activity-description">123 Oak Street - $245,000</div>
+                                <div class="activity-time">2 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: #dbeafe; color: var(--accent-blue);">📤</div>
+                            <div class="activity-content">
+                                <div class="activity-title">New Offer Sent</div>
+                                <div class="activity-description">456 Pine Avenue - $320,000</div>
+                                <div class="activity-time">4 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: #fef3c7; color: var(--accent-orange);">🔍</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Property Analyzed</div>
+                                <div class="activity-description">789 Maple Drive - ROI: 24.5%</div>
+                                <div class="activity-time">6 hours ago</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: #e0e7ff; color: var(--accent-purple);">👥</div>
+                            <div class="activity-content">
+                                <div class="activity-title">New Contact Added</div>
+                                <div class="activity-description">Sarah Johnson - Real Estate Agent</div>
+                                <div class="activity-time">1 day ago</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: #fed7d7; color: var(--accent-red);">❌</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Offer Declined</div>
+                                <div class="activity-description">321 Elm Street - Counter offer received</div>
+                                <div class="activity-time">2 days ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // ============================================================================
+        // REI PRO SAAS PLATFORM - DASHBOARD MODULE
+        // ============================================================================
+        
+        console.log('🚀 REI Pro Dashboard Loading...');
+
+        // Global state
+        let currentTheme = localStorage.getItem('rei-pro-theme') || 'light';
+        let portfolioChart = null;
+
+        // ============================================================================
+        // INITIALIZATION
+        // ============================================================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📊 Dashboard initializing...');
+            
+            try {
+                // Initialize theme
+                initializeTheme();
+                
+                // Initialize charts
+                initializeCharts();
+                
+                // Load dashboard data
+                loadDashboardData();
+                
+                // Show welcome notification
+                showNotification('Welcome to REI Pro Dashboard!', 'success');
+                
+                console.log('✅ Dashboard initialized successfully');
+            } catch (error) {
+                console.error('❌ Dashboard initialization failed:', error);
+                showNotification('Failed to load dashboard', 'error');
+            }
+        });
+
+        // ============================================================================
+        // THEME MANAGEMENT
+        // ============================================================================
+        
+        function initializeTheme() {
+            document.body.setAttribute('data-theme', currentTheme);
+            updateThemeButton();
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', currentTheme);
+            localStorage.setItem('rei-pro-theme', currentTheme);
+            updateThemeButton();
+            showNotification(`Switched to ${currentTheme} theme`, 'success');
+            console.log(`🎨 Theme changed to: ${currentTheme}`);
+        }
+
+        function updateThemeButton() {
+            const themeButton = document.querySelector('[onclick="toggleTheme()"]');
+            if (themeButton) {
+                const icon = currentTheme === 'light' ? '🌙' : '☀️';
+                const text = currentTheme === 'light' ? 'Dark' : 'Light';
+                themeButton.innerHTML = `${icon} ${text}`;
+            }
+        }
+
+        // ============================================================================
+        // SIDEBAR MANAGEMENT
+        // ============================================================================
+        
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+            console.log('📱 Sidebar toggled');
+        }
+
+        // ============================================================================
+        // CHART MANAGEMENT
+        // ============================================================================
+        
+        function initializeCharts() {
+            try {
+                // Portfolio Performance Chart
+                const ctx = document.getElementById('portfolioChart').getContext('2d');
+                portfolioChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [{
+                            label: 'Portfolio Value ($M)',
+                            data: [2.1, 2.2, 2.3, 2.4],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }, {
+                            label: 'Active Offers',
+                            data: [35, 42, 45, 47],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                type: 'linear',
+                                display: true,
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Portfolio Value ($M)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                display: true,
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Active Offers'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                }
+                            }
+                        }
+                    }
+                });
+
+                console.log('📈 Charts initialized');
+            } catch (error) {
+                console.error('❌ Chart initialization failed:', error);
+            }
+        }
+
+        function updateChartPeriod(period) {
+            console.log(`📊 Updating chart period to: ${period}`);
+            
+            // Mock data for different periods
+            const periodData = {
+                '7d': {
+                    labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
+                    portfolio: [2.35, 2.38, 2.36, 2.41, 2.39, 2.42, 2.4],
+                    offers: [44, 45, 43, 47, 46, 48, 47]
+                },
+                '30d': {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    portfolio: [2.1, 2.2, 2.3, 2.4],
+                    offers: [35, 42, 45, 47]
+                },
+                '90d': {
+                    labels: ['Month 1', 'Month 2', 'Month 3'],
+                    portfolio: [1.8, 2.1, 2.4],
+                    offers: [28, 35, 47]
+                },
+                '1y': {
+                    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                    portfolio: [1.2, 1.6, 2.0, 2.4],
+                    offers: [15, 22, 35, 47]
+                }
+            };
+
+            if (portfolioChart && periodData[period]) {
+                portfolioChart.data.labels = periodData[period].labels;
+                portfolioChart.data.datasets[0].data = periodData[period].portfolio;
+                portfolioChart.data.datasets[1].data = periodData[period].offers;
+                portfolioChart.update();
+                
+                showNotification(`Chart updated to ${period} view`, 'success');
+            }
+        }
+
+        // ============================================================================
+        // DATA MANAGEMENT
+        // ============================================================================
+        
+        async function loadDashboardData() {
+            try {
+                console.log('📊 Loading dashboard data...');
+                
+                // Simulate API call
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                // Update stats with animation
+                animateStatsUpdate();
+                
+                console.log('✅ Dashboard data loaded');
+            } catch (error) {
+                console.error('❌ Failed to load dashboard data:', error);
+            }
+        }
+
+        function animateStatsUpdate() {
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach((stat, index) => {
+                setTimeout(() => {
+                    stat.style.transform = 'scale(1.1)';
+                    setTimeout(() => {
+                        stat.style.transform = 'scale(1)';
+                    }, 200);
+                }, index * 100);
+            });
+        }
+
+        // ============================================================================
+        // ACTION HANDLERS
+        // ============================================================================
+        
+        function showQuickOffer() {
+            console.log('🎯 Quick offer button clicked');
+            showNotification('Redirecting to Auto Offers...', 'info');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        function showUserMenu() {
+            console.log('👤 User menu clicked');
+            showNotification('User menu functionality coming soon!', 'info');
+        }
+
+        function viewAllActivity() {
+            console.log('📋 View all activity clicked');
+            showNotification('Full activity log coming soon!', 'info');
+        }
+
+        // ============================================================================
+        // NOTIFICATION SYSTEM
+        // ============================================================================
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span>${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+                <span>${message}</span>
+            `;
+            
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                info: '#3b82f6'
+            };
+            
+            notification.style.background = colors[type] || colors.info;
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            // Hide notification
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+            
+            console.log(`🔔 ${type}: ${message}`);
+        }
+
+        // ============================================================================
+        // PLATFORM INTEGRATION
+        // ============================================================================
+        
+        // Initialize platform state
+        window.REI_PRO_PLATFORM = {
+            currentModule: 'dashboard',
+            user: {
+                name: 'John Doe',
+                initials: 'JD',
+                email: 'john@example.com'
+            },
+            theme: currentTheme,
+            version: '1.0.0'
+        };
+
+        console.log('🏠 REI Pro Dashboard Module Loaded');
+        console.log('✅ Platform state initialized');
+        console.log('🚀 Ready for user interaction!');
+    </script>
+</body>
+</html> 

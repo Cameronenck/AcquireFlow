@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light Mode */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  
+  /* AcquireFlow Vibrant Color System */
+  /* Primary Colors */
+  --brand-green: #77c57f;
+  --ocean-blue: #4f8fdf;
+  --deep-teal: #3b9db0;
+  --royal-purple: #7c6bdf;
+  --warm-orange: #ff8b5a;
+  --bright-yellow: #ffc947;
+  
+  /* Supporting Neutrals */
+  --dark-slate: #2d3e50;
+  --medium-gray: #64748b;
+  --light-gray: #cbd5e1;
+  --pure-white: #ffffff;
+  --soft-background: #f8fafc;
+  
+  /* Semantic Colors */
+  --success: #77c57f;
+  --warning: #ff8b5a;
+  --info: #4f8fdf;
+  --accent: #7c6bdf;
+  
+  /* Legacy Support */
+  --accent-blue: #4f8fdf;
+  --accent-green: #77c57f;
+  --accent-cyan: #3b9db0;
+  --accent-purple: #7c6bdf;
+  --accent-orange: #ff8b5a;
+  --accent-red: #ef4444;
+  
+  /* Sidebar Brand Colors */
+  --sidebar-primary: #77c57f;
+  --sidebar-secondary: #373643;
+}
+
+.dark {
+  /* Dark Mode */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  --border-color: #334155;
+  
+  /* AcquireFlow Vibrant Color System - Dark Mode */
+  /* Primary Colors - Slightly adjusted for dark backgrounds */
+  --brand-green: #77c57f;
+  --ocean-blue: #5a9ff0;
+  --deep-teal: #4db5c9;
+  --royal-purple: #8b7df0;
+  --warm-orange: #ff9b6b;
+  --bright-yellow: #ffd458;
+  
+  /* Supporting Neutrals */
+  --dark-slate: #1e293b;
+  --medium-gray: #64748b;
+  --light-gray: #475569;
+  --pure-white: #f8fafc;
+  --soft-background: #0f172a;
+  
+  /* Semantic Colors */
+  --success: #77c57f;
+  --warning: #ff9b6b;
+  --info: #5a9ff0;
+  --accent: #8b7df0;
+  
+  /* Legacy Support */
+  --accent-blue: #5a9ff0;
+  --accent-green: #77c57f;
+  --accent-cyan: #4db5c9;
+  --accent-purple: #8b7df0;
+  --accent-orange: #ff9b6b;
+  --accent-red: #ef4444;
+  
+  /* Sidebar Brand Colors */
+  --sidebar-primary: #77c57f;
+  --sidebar-secondary: #373643;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Animation for chart bars */
+@keyframes barGrow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.bar-animation {
+  animation: barGrow 1.5s ease-out forwards;
+  transform-origin: bottom;
+}
+
+/* Pulse animation for metric icons */
+@keyframes pulseIcon {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+.pulse-icon {
+  animation: pulseIcon 3s ease-in-out infinite;
+}
+
+/* Line drawing animation for sparklines and charts */
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw-line {
+  animation: draw-line 2s ease-out forwards;
+} 

@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REI Pro - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Light Mode Colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --border-color: #e2e8f0;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-teal: #14b8a6;
+            --accent-pink: #ec4899;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border-color: #334155;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 24px;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            position: relative;
+        }
+
+        .logo-icon::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 3px;
+            position: absolute;
+        }
+
+        .logo-icon::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #3b82f6;
+            border-radius: 2px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .logo-text {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: var(--text-secondary);
+            position: relative;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, var(--accent-blue), #2563eb);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-item .badge {
+            background: var(--accent-orange);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+            animation: pulse 2s infinite;
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-icon svg {
+            width: 16px;
+            height: 16px;
+            stroke-width: 2;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+            background: var(--bg-primary);
+        }
+
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .page-title-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .header-tabs {
+            display: flex;
+            gap: 2px;
+        }
+
+        .header-tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 0;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 3px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        .header-tab:hover {
+            color: var(--text-primary);
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .period-select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: var(--accent-blue);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--accent-blue), #2563eb);
+            color: white;
+        }
+
+        /* Page Content */
+        .page-content {
+            padding: 32px;
+        }
+
+        /* Deal Metrics */
+        .overview-section {
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .period-tabs {
+            display: flex;
+            gap: 2px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 4px;
+        }
+
+        .period-tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .period-tab.active, .period-tab:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .metric-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .metric-trend {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 12px;
+        }
+
+        .metric-trend.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+        }
+
+        .metric-trend.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .metric-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+        }
+
+        .metric-chart {
+            height: 40px;
+            display: flex;
+            align-items: end;
+        }
+
+        .overview-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .overview-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .overview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-accent, var(--accent-blue));
+        }
+
+        .overview-card.revenue::before { --card-accent: var(--accent-green); }
+        .overview-card.roi::before { --card-accent: var(--accent-purple); }
+        .overview-card.deals::before { --card-accent: var(--accent-orange); }
+        .overview-card.pipeline::before { --card-accent: var(--accent-teal); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .card-icon.revenue { background: linear-gradient(135deg, var(--accent-green), #059669); }
+        .card-icon.roi { background: linear-gradient(135deg, var(--accent-purple), #7c3aed); }
+        .card-icon.deals { background: linear-gradient(135deg, var(--accent-orange), #d97706); }
+        .card-icon.pipeline { background: linear-gradient(135deg, var(--accent-teal), #0d9488); }
+
+        .card-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .card-trend.up {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+        }
+
+        .card-trend.down {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .card-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Charts Section */
+        .charts-section {
+            margin-bottom: 32px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .charts-grid.secondary {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .chart-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .chart-card.main-chart {
+            /* Special styling for main chart */
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .chart-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .chart-select {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+        }
+
+        /* Insights Panel */
+        .insights-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .insight-item {
+            margin-bottom: 20px;
+        }
+
+        .insight-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .insight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .insight-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .insight-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .insight-period {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .insight-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .insight-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Risk Breakdown */
+        .risk-breakdown {
+            space-y: 16px;
+        }
+
+        .risk-item {
+            margin-bottom: 16px;
+        }
+
+        .risk-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .risk-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .risk-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .risk-dot.high { background: #ef4444; }
+        .risk-dot.medium { background: #f59e0b; }
+        .risk-dot.low { background: #10b981; }
+
+        .risk-percentage {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .risk-bar {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-tertiary);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .risk-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        /* Market Performance */
+        .market-performance {
+            space-y: 16px;
+        }
+
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .market-item:last-child {
+            border-bottom: none;
+        }
+
+        .market-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .market-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .market-stats {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .market-chart {
+            flex-shrink: 0;
+        }
+
+        /* Performance Section */
+        .performance-section {
+            margin-bottom: 32px;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .performance-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .performance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .performance-item:last-child {
+            border-bottom: none;
+        }
+
+        .performance-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .performance-value {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .performance-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-tertiary);
+            border-radius: 3px;
+            margin: 8px 0;
+        }
+
+        .performance-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Recent Activity */
+        .activity-section {
+            margin-bottom: 32px;
+        }
+
+        .activity-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+        }
+
+        .activity-icon.offer { background: var(--accent-blue); }
+        .activity-icon.accepted { background: var(--accent-green); }
+        .activity-icon.rejected { background: var(--accent-red); }
+        .activity-icon.negotiation { background: var(--accent-purple); }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .activity-description {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .activity-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 16px 20px;
+                flex-direction: column;
+                gap: 16px;
+            }
+            
+            .page-content {
+                padding: 20px;
+            }
+            
+            .metrics-grid, .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .header-tabs {
+                overflow-x: auto;
+                gap: 0;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .overview-card, .chart-card, .performance-card, .activity-card {
+            animation: slideIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo">
+            <div class="logo-icon"></div>
+            <div class="logo-text">GuardPro</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">GENERAL</div>
+            <a href="dashboard.html" class="nav-item active">
+                <div class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                    </svg>
+                </div>
+                <span>Insights</span>
+            </a>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h4.125M8.25 8.25V6.108" />
+                    </svg>
+                </div>
+                <span>Analytics</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
+                    </svg>
+                </div>
+                <span>Resource</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">SUPPORT</div>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                    </svg>
+                </div>
+                <span>Relationships</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a6.759 6.759 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                </div>
+                <span>Setting</span>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                    </svg>
+                </div>
+                <span>Help Center</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="header">
+            <div class="page-title-section">
+                <h1 class="page-title">Insights</h1>
+                <div class="header-tabs">
+                    <button class="header-tab active">RISK METRICS</button>
+                    <button class="header-tab">PROGRAM METRICS</button>
+                    <button class="header-tab">RISK NETWORK</button>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="date-range">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                    </svg>
+                    Nov 21 - No 31
+                </div>
+                <select class="period-select">
+                    <option>Monthly</option>
+                    <option>Weekly</option>
+                    <option>Daily</option>
+                </select>
+                <button class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z" />
+                    </svg>
+                    Filter
+                </button>
+                <button class="btn primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    Export
+                </button>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- Key Metrics Overview -->
+            <div class="overview-section">
+                <div class="section-header">
+                    <h2 class="section-title">DEAL METRICS</h2>
+                    <div class="period-tabs">
+                        <button class="period-tab">7D</button>
+                        <button class="period-tab active">30D</button>
+                        <button class="period-tab">90D</button>
+                        <button class="period-tab">1Y</button>
+                    </div>
+                </div>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Active Offers</span>
+                            <span class="metric-trend positive">+12%</span>
+                        </div>
+                        <div class="metric-value">47</div>
+                        <div class="metric-subtitle">Last update at 15 Nov</div>
+                        <div class="metric-chart">
+                            <canvas id="activeOffersChart" width="120" height="40"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Acceptance Rate</span>
+                            <span class="metric-trend negative">-3%</span>
+                        </div>
+                        <div class="metric-value">18%</div>
+                        <div class="metric-subtitle">Last update at 15 Nov</div>
+                        <div class="metric-chart">
+                            <canvas id="acceptanceChart" width="120" height="40"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <span class="metric-label">Average Deal Size</span>
+                            <span class="metric-trend positive">+8%</span>
+                        </div>
+                        <div class="metric-value">$245K</div>
+                        <div class="metric-subtitle">Last update at 15 Nov</div>
+                        <div class="metric-chart">
+                            <canvas id="dealSizeChart" width="120" height="40"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Analytics -->
+            <div class="charts-section">
+                <div class="charts-grid">
+                    <!-- Offer Pipeline Over Time -->
+                    <div class="chart-card main-chart">
+                        <div class="chart-header">
+                            <div>
+                                <h3 class="chart-title">Offer pipeline over time</h3>
+                                <div class="chart-legend">
+                                    <span class="legend-item">
+                                        <span class="legend-dot" style="background: #3b82f6;"></span>
+                                        Active Offers
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-dot" style="background: #10b981;"></span>
+                                        Accepted
+                                    </span>
+                                    <span class="legend-item">
+                                        <span class="legend-dot" style="background: #8b5cf6;"></span>
+                                        Under Negotiation
+                                    </span>
+                                </div>
+                            </div>
+                            <select class="chart-select">
+                                <option>Monthly</option>
+                                <option>Weekly</option>
+                                <option>Daily</option>
+                            </select>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pipelineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Offer Insights -->
+                    <div class="insights-panel">
+                        <h3 class="panel-title">Offers by property type</h3>
+                        <div class="insight-item">
+                            <div class="insight-header">
+                                <span class="insight-label">Single Family</span>
+                                <span class="insight-value">65% Rate</span>
+                                <span class="insight-period">Nov 2023</span>
+                            </div>
+                            <div class="insight-bar">
+                                <div class="insight-fill" style="width: 65%; background: #3b82f6;"></div>
+                            </div>
+                        </div>
+
+                        <div class="insight-item">
+                            <div class="insight-header">
+                                <span class="insight-label">Multi-Family</span>
+                                <span class="insight-value">25% Rate</span>
+                                <span class="insight-period">Nov 2023</span>
+                            </div>
+                            <div class="insight-bar">
+                                <div class="insight-fill" style="width: 25%; background: #10b981;"></div>
+                            </div>
+                        </div>
+
+                        <div class="insight-item">
+                            <div class="insight-header">
+                                <span class="insight-label">Commercial</span>
+                                <span class="insight-value">10% Rate</span>
+                                <span class="insight-period">Nov 2023</span>
+                            </div>
+                            <div class="insight-bar">
+                                <div class="insight-fill" style="width: 10%; background: #8b5cf6;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Analysis -->
+                <div class="charts-grid secondary">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Offers by risk level</h3>
+                            <div class="chart-subtitle">Last update at 3 Nov</div>
+                        </div>
+                        <div class="risk-breakdown">
+                            <div class="risk-item">
+                                <div class="risk-label">
+                                    <span class="risk-dot high"></span>
+                                    High Risk
+                                </div>
+                                <div class="risk-percentage">25% Rate</div>
+                                <div class="risk-bar">
+                                    <div class="risk-fill" style="width: 25%; background: #ef4444;"></div>
+                                </div>
+                            </div>
+                            <div class="risk-item">
+                                <div class="risk-label">
+                                    <span class="risk-dot medium"></span>
+                                    Medium Risk
+                                </div>
+                                <div class="risk-percentage">45% Rate</div>
+                                <div class="risk-bar">
+                                    <div class="risk-fill" style="width: 45%; background: #f59e0b;"></div>
+                                </div>
+                            </div>
+                            <div class="risk-item">
+                                <div class="risk-label">
+                                    <span class="risk-dot low"></span>
+                                    Low Risk
+                                </div>
+                                <div class="risk-percentage">30% Rate</div>
+                                <div class="risk-bar">
+                                    <div class="risk-fill" style="width: 30%; background: #10b981;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Success by market</h3>
+                            <select class="chart-select">
+                                <option>Monthly</option>
+                                <option>Quarterly</option>
+                            </select>
+                        </div>
+                        <div class="market-performance">
+                            <div class="market-item">
+                                <div class="market-info">
+                                    <span class="market-name">Chicago</span>
+                                    <span class="market-stats">32 offers • 23% success</span>
+                                </div>
+                                <div class="market-chart">
+                                    <canvas id="chicagoChart" width="60" height="30"></canvas>
+                                </div>
+                            </div>
+                            <div class="market-item">
+                                <div class="market-info">
+                                    <span class="market-name">Austin</span>
+                                    <span class="market-stats">28 offers • 18% success</span>
+                                </div>
+                                <div class="market-chart">
+                                    <canvas id="austinChart" width="60" height="30"></canvas>
+                                </div>
+                            </div>
+                            <div class="market-item">
+                                <div class="market-info">
+                                    <span class="market-name">Denver</span>
+                                    <span class="market-stats">24 offers • 21% success</span>
+                                </div>
+                                <div class="market-chart">
+                                    <canvas id="denverChart" width="60" height="30"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Metrics -->
+            <div class="performance-section">
+                <div class="section-header">
+                    <h2 class="section-title">Key Performance Indicators</h2>
+                </div>
+                <div class="performance-grid">
+                    <div class="performance-card">
+                        <h3 class="chart-title">Conversion Metrics</h3>
+                        <div class="performance-item">
+                            <span class="performance-label">Offer Acceptance Rate</span>
+                            <span class="performance-value">18.5%</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 18.5%; background: var(--accent-green);"></div>
+                        </div>
+                        
+                        <div class="performance-item">
+                            <span class="performance-label">Deal Closure Rate</span>
+                            <span class="performance-value">12.3%</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 12.3%; background: var(--accent-blue);"></div>
+                        </div>
+                        
+                        <div class="performance-item">
+                            <span class="performance-label">Response Time (Avg)</span>
+                            <span class="performance-value">3.2 days</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 65%; background: var(--accent-orange);"></div>
+                        </div>
+                    </div>
+
+                    <div class="performance-card">
+                        <h3 class="chart-title">Financial Health</h3>
+                        <div class="performance-item">
+                            <span class="performance-label">Cash Flow</span>
+                            <span class="performance-value">$124,580</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 78%; background: var(--accent-green);"></div>
+                        </div>
+                        
+                        <div class="performance-item">
+                            <span class="performance-label">Portfolio Value</span>
+                            <span class="performance-value">$4.2M</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 85%; background: var(--accent-purple);"></div>
+                        </div>
+                        
+                        <div class="performance-item">
+                            <span class="performance-label">Debt-to-Equity</span>
+                            <span class="performance-value">0.62</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 38%; background: var(--accent-teal);"></div>
+                        </div>
+                    </div>
+
+                    <div class="performance-card">
+                        <h3 class="chart-title">Market Activity</h3>
+                        <div class="performance-item">
+                            <span class="performance-label">Properties Analyzed</span>
+                            <span class="performance-value">1,247</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 90%; background: var(--accent-blue);"></div>
+                        </div>
+                        
+                        <div class="performance-item">
+                            <span class="performance-label">Offers Submitted</span>
+                            <span class="performance-value">243</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 19%; background: var(--accent-orange);"></div>
+                        </div>
+                        
+                        <div class="performance-item">
+                            <span class="performance-label">Market Coverage</span>
+                            <span class="performance-value">5 Cities</span>
+                        </div>
+                        <div class="performance-bar">
+                            <div class="performance-fill" style="width: 50%; background: var(--accent-pink);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="activity-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Activity</h2>
+                    <button class="btn">View All</button>
+                </div>
+                <div class="activity-card">
+                    <div class="activity-item">
+                        <div class="activity-icon accepted">✅</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Offer Accepted - 123 Oak Street</div>
+                            <div class="activity-description">$245,000 offer accepted • ROI: 22.3% • Chicago, IL</div>
+                        </div>
+                        <div class="activity-time">2 hours ago</div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon offer">📤</div>
+                        <div class="activity-content">
+                            <div class="activity-title">New Offer Sent - 789 Pine Avenue</div>
+                            <div class="activity-description">$180,000 offer sent • ROI: 25.1% • Denver, CO</div>
+                        </div>
+                        <div class="activity-time">4 hours ago</div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon negotiation">🤝</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Counter Offer Received - 456 Maple Drive</div>
+                            <div class="activity-description">Counter at $215,000 • Original: $195,000 • Austin, TX</div>
+                        </div>
+                        <div class="activity-time">6 hours ago</div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon rejected">❌</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Offer Rejected - 321 Elm Street</div>
+                            <div class="activity-description">$280,000 offer rejected • ROI: 19.8% • Phoenix, AZ</div>
+                        </div>
+                        <div class="activity-time">8 hours ago</div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon offer">📤</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Bulk Offers Sent - 12 Properties</div>
+                            <div class="activity-description">Automated batch processing • Tampa, FL market</div>
+                        </div>
+                        <div class="activity-time">1 day ago</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', newTheme);
+        }
+
+        // Export report
+        function exportReport() {
+            alert('Exporting comprehensive business report...');
+        }
+
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            // Main Pipeline Chart
+            const pipelineCtx = document.getElementById('pipelineChart').getContext('2d');
+            new Chart(pipelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Sep', 'Oct', 'Nov'],
+                    datasets: [{
+                        label: 'Active Offers',
+                        data: [32, 45, 47],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    }, {
+                        label: 'Accepted',
+                        data: [8, 12, 15],
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }, {
+                        label: 'Under Negotiation',
+                        data: [12, 18, 22],
+                        backgroundColor: '#8b5cf6',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(148, 163, 184, 0.1)'
+                            },
+                            ticks: {
+                                color: '#94a3b8'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Mini sparkline charts for metrics
+            createSparkline('activeOffersChart', [28, 32, 29, 35, 42, 38, 47], '#3b82f6');
+            createSparkline('acceptanceChart', [22, 18, 20, 16, 19, 15, 18], '#10b981');
+            createSparkline('dealSizeChart', [220, 235, 228, 245, 238, 242, 245], '#8b5cf6');
+
+            // Market mini charts
+            createSparkline('chicagoChart', [15, 18, 22, 19, 23], '#3b82f6');
+            createSparkline('austinChart', [12, 16, 14, 18, 18], '#10b981');
+            createSparkline('denverChart', [18, 20, 19, 21, 21], '#8b5cf6');
+        }
+
+        function createSparkline(canvasId, data, color) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map((_, i) => i),
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color + '20',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false
+                        },
+                        y: {
+                            display: false
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 0
+                        }
+                    }
+                }
+            });
+        }
+
+        // Period selector
+        document.getElementById('periodSelect').addEventListener('change', function() {
+            const period = this.value;
+            console.log('Loading data for last', period, 'days');
+            // In a real app, this would reload the dashboard data
+        });
+
+        // Header tab functionality
+        document.querySelectorAll('.header-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                document.querySelectorAll('.header-tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                console.log('Switched to tab:', this.textContent);
+                showNotification(`Switched to ${this.textContent}`, 'info');
+            });
+        });
+
+        // Period tab functionality
+        document.querySelectorAll('.period-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all period tabs
+                document.querySelectorAll('.period-tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                console.log('Period changed to:', this.textContent);
+                showNotification(`Time period changed to ${this.textContent}`, 'info');
+                
+                // Simulate data refresh
+                setTimeout(() => {
+                    showNotification('Dashboard data refreshed', 'success');
+                }, 500);
+            });
+        });
+
+        // Filter button functionality
+        document.querySelectorAll('.btn').forEach(btn => {
+            if (btn.textContent.trim() === 'Filter') {
+                btn.addEventListener('click', function() {
+                    console.log('Filter button clicked');
+                    showNotification('Filter panel opened', 'info');
+                    // In a real app, this would open a filter modal
+                });
+            }
+        });
+
+        // Export button functionality
+        document.querySelectorAll('.btn.primary').forEach(btn => {
+            if (btn.textContent.trim() === 'Export') {
+                btn.addEventListener('click', function() {
+                    console.log('Export button clicked');
+                    showNotification('Exporting dashboard data...', 'info');
+                    
+                    // Simulate export process
+                    setTimeout(() => {
+                        showNotification('Dashboard exported successfully!', 'success');
+                        // In a real app, this would trigger a file download
+                        const dataUrl = 'data:text/plain;charset=utf-8,' + encodeURIComponent('REI Pro Dashboard Data\nExported on: ' + new Date().toLocaleString());
+                        const link = document.createElement('a');
+                        link.href = dataUrl;
+                        link.download = 'rei-pro-dashboard-' + new Date().toISOString().split('T')[0] + '.txt';
+                        link.click();
+                    }, 1000);
+                });
+            }
+        });
+
+        // View All activity button
+        document.querySelector('.activity-section .btn').addEventListener('click', function() {
+            console.log('View All activity clicked');
+            showNotification('Loading full activity history...', 'info');
+            // In a real app, this would navigate to a detailed activity page
+        });
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <span class="notification-icon">
+                        ${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}
+                    </span>
+                    <span class="notification-message">${message}</span>
+                </div>
+            `;
+
+            // Add notification styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                color: white;
+                padding: 12px 16px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                min-width: 250px;
+                opacity: 0;
+                transform: translateX(100%);
+                transition: all 0.3s ease;
+            `;
+
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => {
+                notification.style.opacity = '1';
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Add some interactive hover effects for cards
+        document.querySelectorAll('.metric-card, .chart-card, .activity-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
+            });
+        });
+
+        // Sidebar navigation functionality
+        console.log('Setting up dashboard sidebar navigation...');
+        document.querySelectorAll('.nav-item').forEach((navItem, index) => {
+            console.log(`Dashboard nav item ${index}:`, navItem, 'Tag:', navItem.tagName);
+            
+            // Skip the one that's already an anchor tag (Insights)
+            if (navItem.tagName === 'A') {
+                console.log('Skipping anchor tag nav item');
+                return;
+            }
+            
+            navItem.addEventListener('click', function() {
+                console.log('Dashboard click detected on nav item:', this);
+                
+                const spanElement = this.querySelector('span');
+                console.log('Dashboard span element found:', spanElement);
+                
+                if (!spanElement) {
+                    console.error('No span element found in dashboard nav item');
+                    return;
+                }
+                
+                const navText = spanElement.textContent;
+                console.log('Dashboard navigation text:', navText);
+                
+                // Remove active class from all nav items
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                console.log('Navigation clicked:', navText);
+                
+                // Handle different navigation actions
+                switch(navText) {
+                    case 'Analytics':
+                        showNotification('Loading Analytics dashboard...', 'info');
+                        // In a real app, this would navigate to analytics page
+                        setTimeout(() => {
+                            showNotification('Analytics data loaded', 'success');
+                        }, 1000);
+                        break;
+                        
+                    case 'Resource':
+                        showNotification('Opening Resource center...', 'info');
+                        // In a real app, this would navigate to resources
+                        setTimeout(() => {
+                            showNotification('Resource center loaded', 'success');
+                        }, 800);
+                        break;
+                        
+                    case 'Relationships':
+                        showNotification('Loading Relationships view...', 'info');
+                        // In a real app, this would show contact management
+                        setTimeout(() => {
+                            showNotification('Relationships dashboard ready', 'success');
+                        }, 900);
+                        break;
+                        
+                    case 'Setting':
+                        showNotification('Opening Settings...', 'info');
+                        // In a real app, this would open settings modal/page
+                        setTimeout(() => {
+                            showModal('Settings', `
+                                <div style="padding: 20px;">
+                                    <h3 style="margin-bottom: 15px;">Application Settings</h3>
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="display: block; margin-bottom: 5px;">Theme:</label>
+                                        <select style="padding: 8px; border-radius: 4px; border: 1px solid #e2e8f0; width: 200px;">
+                                            <option>Light</option>
+                                            <option>Dark</option>
+                                            <option>Auto</option>
+                                        </select>
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="display: block; margin-bottom: 5px;">
+                                            <input type="checkbox" style="margin-right: 8px;">
+                                            Enable notifications
+                                        </label>
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <label style="display: block; margin-bottom: 5px;">
+                                            <input type="checkbox" style="margin-right: 8px;" checked>
+                                            Auto-save preferences
+                                        </label>
+                                    </div>
+                                </div>
+                            `);
+                        }, 500);
+                        break;
+                        
+                    case 'Help Center':
+                        showNotification('Opening Help Center...', 'info');
+                        // In a real app, this would open help documentation
+                        setTimeout(() => {
+                            showModal('Help Center', `
+                                <div style="padding: 20px;">
+                                    <h3 style="margin-bottom: 15px;">REI Pro Help Center</h3>
+                                    <div style="margin-bottom: 15px;">
+                                        <h4 style="margin-bottom: 8px;">Quick Start Guide</h4>
+                                        <p style="color: #64748b; line-height: 1.5;">Learn how to set up your first automated offer campaign and start generating leads.</p>
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <h4 style="margin-bottom: 8px;">API Documentation</h4>
+                                        <p style="color: #64748b; line-height: 1.5;">Complete reference for integrating with external tools and services.</p>
+                                    </div>
+                                    <div style="margin-bottom: 15px;">
+                                        <h4 style="margin-bottom: 8px;">Contact Support</h4>
+                                        <p style="color: #64748b; line-height: 1.5;">Need help? Our support team is available 24/7.</p>
+                                        <button class="btn primary" style="margin-top: 10px;">Contact Support</button>
+                                    </div>
+                                </div>
+                            `);
+                        }, 600);
+                        break;
+                        
+                    default:
+                        showNotification(`${navText} clicked`, 'info');
+                }
+            });
+            
+            // Add cursor pointer for better UX
+            navItem.style.cursor = 'pointer';
+        });
+
+        // Modal system for settings and help
+        function showModal(title, content) {
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+
+            // Create modal content
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: white;
+                border-radius: 12px;
+                max-width: 500px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+                transform: scale(0.9);
+                transition: transform 0.3s ease;
+            `;
+
+            // Create modal header
+            const header = document.createElement('div');
+            header.style.cssText = `
+                padding: 20px 20px 0 20px;
+                border-bottom: 1px solid #e2e8f0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            `;
+            header.innerHTML = `
+                <h2 style="margin: 0; font-size: 20px; font-weight: 600;">${title}</h2>
+                <button class="modal-close" style="
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #64748b;
+                    padding: 0;
+                    width: 30px;
+                    height: 30px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 6px;
+                ">&times;</button>
+            `;
+
+            // Create modal body
+            const body = document.createElement('div');
+            body.innerHTML = content;
+
+            modal.appendChild(header);
+            modal.appendChild(body);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            // Animate in
+            setTimeout(() => {
+                overlay.style.opacity = '1';
+                modal.style.transform = 'scale(1)';
+            }, 10);
+
+            // Close functionality
+            function closeModal() {
+                overlay.style.opacity = '0';
+                modal.style.transform = 'scale(0.9)';
+                setTimeout(() => {
+                    if (overlay.parentNode) {
+                        overlay.parentNode.removeChild(overlay);
+                    }
+                }, 300);
+            }
+
+            // Close on X button
+            header.querySelector('.modal-close').addEventListener('click', closeModal);
+            
+            // Close on overlay click
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeModal();
+                }
+            });
+
+            // Close on Escape key
+            const handleEscape = function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,269 @@
+# AcquireFlow Pipeline Management System
+## Product Requirements Document (PRD)
+
+### Project Overview
+AcquireFlow is a real estate investment automation platform that enables investors to scale their deal-making process by automatically sending bulk offers to property agents. The software scrapes active listings, extracts agent contact information, and provides a streamlined interface for users to filter properties and send automated offers via email and SMS to hundreds of agents simultaneously.
+
+### Core Value Proposition
+**"From 200 phone calls to 200 automated offers in minutes"**
+
+Users can filter active listings by location and investment criteria, select multiple properties (50-500+ at once), and automatically send personalized offers to agents via email and SMS, transforming manual outreach into a scalable, automated process.
+
+### Current State Assessment
+- **Technology Stack:** Next.js, React, TypeScript, Tailwind CSS
+- **Existing Pages:** Dashboard, Deal Finder, Inbox, Contacts, Reports, Market Intelligence, Settings
+- **Current Issues:** Manual property research, no bulk offer capabilities, disconnected workflow, generic appearance
+
+## Phase 1: Automated Offer System (CORE FEATURE)
+
+### 1.1 Advanced Property Filtering & Selection
+**Objective:** Enable users to quickly filter and select properties for bulk offers
+
+**Filtering Requirements:**
+- **Geographic Filters:** State, City, ZIP codes, County, School district
+- **Property Criteria:** Price range, property type, bedrooms/bathrooms, square footage, lot size
+- **Investment Metrics:** Cap rate estimates, cash flow projections, days on market, price per sq ft
+- **Market Filters:** Recently reduced prices, new listings, price below market value
+- **Agent Filters:** Agent responsiveness, previous deal history, contact availability
+
+**Bulk Selection Features:**
+- Select all filtered results with one click
+- Custom selection with checkboxes
+- Quick selection by criteria (e.g., "all under $200k")
+- Save selection sets for future campaigns
+- Preview selected properties with key metrics
+- Estimated offer values based on user-defined formulas
+
+**Acceptance Criteria:**
+- Users can filter 10,000+ properties down to 50-500 target properties in under 30 seconds
+- Bulk selection works smoothly with 500+ properties
+- Filter combinations save and load quickly
+- Selection preview shows total count, average price, total offer amount
+
+### 1.2 Offer Template System
+**Objective:** Create dynamic, personalized offer templates for automated outreach
+
+**Template Requirements:**
+- **Dynamic Property Data:** Auto-populate address, price, property details
+- **Agent Personalization:** Insert agent name, company, previous interaction history
+- **Offer Calculations:** Formula-based offer amounts (% of asking, comps-based, etc.)
+- **Multiple Template Types:** Cash offers, financed offers, wholesale offers, fix-and-flip
+- **Legal Disclaimers:** Automatic inclusion of required legal language
+- **Branding Elements:** User company logo, contact signature, professional formatting
+
+**Email Template Features:**
+- Professional HTML email design
+- Mobile-responsive formatting
+- Property photos integration
+- Clickable contact information
+- Tracking pixels for open rates
+- Automatic follow-up sequences
+
+**SMS Template Features:**
+- Concise message under 160 characters
+- Property address and offer amount
+- Callback number and best contact time
+- Professional tone while staying conversational
+- Compliance with SMS marketing regulations
+
+**Acceptance Criteria:**
+- Templates automatically populate all property and agent data
+- Users can customize offer formulas (e.g., 85% of asking price)
+- Email templates render properly across all major email clients
+- SMS messages stay under character limits while including key info
+- Legal disclaimers are automatically included and customizable
+
+### 1.3 Automated Communication System
+**Objective:** Send bulk offers via email and SMS with tracking and management
+
+**Email Automation Requirements:**
+- **SMTP Integration:** Professional email sending service (SendGrid, Mailgun)
+- **Rate Limiting:** Respect email provider limits to avoid spam classification
+- **Personalization:** Each email appears individually sent, not bulk
+- **Deliverability:** Proper SPF, DKIM, DMARC configuration
+- **Bounce Handling:** Track bounced emails and invalid addresses
+- **Open/Click Tracking:** Monitor email engagement rates
+- **Unsubscribe Management:** Automatic unsubscribe handling and compliance
+
+**SMS Automation Requirements:**
+- **SMS Gateway:** Twilio or similar service for bulk SMS sending
+- **Phone Validation:** Verify phone numbers before sending
+- **Opt-out Compliance:** Automatic STOP keyword handling
+- **Delivery Reports:** Track sent, delivered, failed messages
+- **Time Zone Awareness:** Send messages during business hours in agent's time zone
+- **Carrier Filtering:** Handle carrier-specific delivery rules
+
+**Campaign Management:**
+- **Batch Processing:** Send offers in controlled batches to avoid overwhelming
+- **Progress Tracking:** Real-time status of campaign progress
+- **Error Handling:** Retry failed sends, log errors for review
+- **Response Monitoring:** Capture and categorize agent responses
+- **Follow-up Automation:** Scheduled follow-up messages based on response rules
+
+**Acceptance Criteria:**
+- System can send 500+ personalized emails within 30 minutes
+- SMS messages deliver within 5 minutes of campaign start
+- Email deliverability rate above 95%
+- SMS delivery rate above 90%
+- All bounced/failed contacts are properly logged and flagged
+- Campaign progress visible in real-time dashboard
+
+## Implementation Timeline - 14 Day Sprint
+
+### 🚀 Sprint Structure: Automated Offer System (14 Days Total)
+
+**CORE MISSION:** Build automated bulk offer system that enables users to send 200+ personalized offers to agents with one click.
+
+### Days 1-2: Foundation & Data Pipeline
+**Priority: CRITICAL - Must Complete**
+- ✅ Project structure cleanup and organization  
+- ✅ Design system implementation (color palette, basic components)
+- ✅ Listings scraping service (Zillow focus for MVP)
+- ✅ Agent contact extraction (name, email, phone, company)
+
+**Deliverables:**
+- Clean, organized codebase with consistent styling
+- Working scraper pulling 500+ properties with agent contact info
+- Agent data extraction with 80%+ accuracy
+
+### Days 3-4: Advanced Filtering & Selection System
+**Priority: CRITICAL - Core User Workflow**
+- ✅ Advanced property filtering interface (city, state, price, property type, etc.)
+- ✅ Bulk property selection system (checkboxes, select all, quick filters)
+- ✅ Property preview with key metrics and investment calculations
+- ✅ Save filter combinations and selection sets
+
+**Deliverables:**
+- Users can filter 1000+ properties down to 50-200 targets in seconds
+- Bulk selection works smoothly with 500+ properties
+- Filter preview shows total count, average price, estimated offer amounts
+
+### Days 5-7: Offer Template & Automation System  
+**Priority: CRITICAL - Core Value Proposition**
+- ✅ Dynamic offer template creation (email and SMS)
+- ✅ Auto-population of property data and agent information
+- ✅ Offer calculation formulas (% of asking, custom amounts, etc.)
+- ✅ Email automation service integration (SendGrid/Mailgun)
+- ✅ SMS automation service integration (Twilio)
+
+**Deliverables:**
+- Professional email templates with property photos and details
+- SMS templates under 160 characters with key offer info
+- Templates auto-populate all property and agent data
+- Users can customize offer formulas and legal disclaimers
+
+### Days 8-10: Bulk Campaign Execution
+**Priority: CRITICAL - Automated Sending**
+- ✅ Campaign management interface with batch sending
+- ✅ Rate limiting and delivery optimization
+- ✅ Real-time campaign progress tracking
+- ✅ Error handling and retry mechanisms
+- ✅ Email deliverability optimization (SPF, DKIM setup)
+
+**Deliverables:**
+- System sends 200+ personalized emails in 15-30 minutes
+- SMS delivery within 5 minutes of campaign start
+- Real-time progress dashboard shows sending status
+- Failed sends are logged and can be retried
+- Email deliverability rate above 90%
+
+### Days 11-12: Response Management  
+**Priority: HIGH - Complete the Loop**
+- ✅ Email reply capture and threading
+- ✅ SMS response capture and management  
+- ✅ Automatic response categorization (interested, counter-offer, not interested)
+- ✅ Response dashboard with filtering and sorting
+- ✅ Quick actions for follow-up communication
+
+**Deliverables:**
+- Agent replies are automatically captured and threaded
+- Response categorization with 80%+ accuracy
+- Users can quickly identify and respond to interested agents
+- Response rates and analytics visible in dashboard
+
+### Days 13-14: Analytics & Polish
+**Priority: MEDIUM - Optimization & QA**
+- ✅ Campaign performance analytics (send rates, response rates, ROI)
+- ✅ Agent scoring and relationship tracking
+- ✅ UI polish and responsive design optimization
+- ✅ Bug fixes and performance optimization
+- ✅ Basic documentation and user guidance
+
+**Deliverables:**
+- Campaign analytics show key performance metrics
+- Agent profiles track interaction history and responsiveness
+- Application is responsive and performs well
+- Major bugs resolved and ready for user testing
+
+### 🎯 MVP Feature Prioritization for Automated Offers
+
+**MUST HAVE (Days 1-10):**
+1. ✅ Listings scraping with agent contact extraction
+2. ✅ Advanced property filtering and bulk selection  
+3. ✅ Dynamic offer templates (email + SMS)
+4. ✅ Bulk automated sending (200+ offers at once)
+5. ✅ Campaign progress tracking and error handling
+
+**SHOULD HAVE (Days 11-12):**
+1. ✅ Response capture and categorization
+2. ✅ Response management dashboard
+3. ✅ Basic follow-up automation
+4. ✅ Agent interaction history
+
+**NICE TO HAVE (Days 13-14 if time permits):**
+1. Advanced campaign analytics and ROI tracking
+2. Agent scoring and relationship management
+3. A/B testing for offer templates
+4. Advanced follow-up sequences
+5. Mobile-optimized responsive design
+
+## Technical Implementation Requirements
+
+### Frontend Architecture
+- **Framework:** Next.js 13+ with App Router
+- **State Management:** Zustand or React Query
+- **Styling:** Tailwind CSS with custom design system
+- **Type Safety:** Strict TypeScript configuration
+- **Testing:** Jest + React Testing Library (critical path only for 14-day sprint)
+- **Animation:** Framer Motion for smooth transitions
+
+### Backend Architecture - Automated Offer System
+- **Scraping Service:** Node.js with Puppeteer/Playwright for property data
+- **Email Service:** SendGrid or Mailgun for bulk email sending
+- **SMS Service:** Twilio for bulk SMS campaigns  
+- **Queue System:** Bull/Agenda for background job processing
+- **Database:** PostgreSQL for relational data, Redis for caching
+- **Campaign Management:** Custom campaign orchestration service
+- **Rate Limiting:** Custom throttling to avoid service blocks
+- **Response Processing:** Email/SMS webhook handlers for replies
+
+## Success Metrics (14-Day Sprint) - Automated Offer System
+
+### Campaign Performance Metrics (Primary Success Indicators)
+- **Daily Listing Volume:** 500+ active listings scraped with agent contact info
+- **Agent Contact Accuracy:** 80%+ successful extraction of name, email, phone, company
+- **Campaign Sending Capacity:** Users can send 200+ personalized offers in under 30 minutes
+- **Email Deliverability:** 90%+ of emails successfully delivered to agent inboxes
+- **SMS Delivery Rate:** 85%+ of SMS messages successfully delivered
+- **System Reliability:** 95%+ uptime for campaign sending during business hours
+
+### User Workflow Efficiency (Core Value Proposition)
+- **Filter-to-Send Time:** Complete workflow from property filtering to campaign launch under 10 minutes
+- **Template Personalization:** 100% of emails/SMS include personalized property and agent data
+- **Batch Processing:** System handles 500+ recipient campaigns without performance degradation
+- **Error Recovery:** Failed sends automatically retry with 90%+ eventual success rate
+- **Real-time Feedback:** Campaign progress updates within 30 seconds of actual status
+
+### Response Management & Conversion
+- **Response Capture Rate:** 85%+ of agent email replies automatically captured and threaded
+- **Response Categorization:** 80%+ accuracy in automatically categorizing agent responses
+- **Interest Conversion:** Interested agent responses converted to deal records within 1 minute
+- **Follow-up Efficiency:** Users can respond to interested agents within 2 minutes of notification
+- **Lead Quality:** 15%+ response rate from automated offer campaigns (industry benchmark: 5-10%)
+
+## Technical Constraints
+- Must be built with Next.js 14 and TypeScript
+- Use Tailwind CSS for styling
+- Maintain component reusability
+- Ensure mobile responsiveness
+- Follow modern React patterns and best practices 
