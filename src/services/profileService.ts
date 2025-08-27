@@ -54,22 +54,37 @@ export interface ProfileResponse {
 }
 
 export interface CompleteProfileResponse {
-  user: {
-    _id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-    phoneNumber?: string;
-    company?: string;
-    role: string;
-    isActive: boolean;
-    isEmailVerified: boolean;
-    isPhoneVerified: boolean;
-    lastLoginAt?: string;
-    createdAt?: string;
-    updatedAt?: string;
+  success: boolean;
+  data: {
+    user: {
+      _id: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      phoneNumber?: string;
+      company?: string;
+      role: string;
+      isActive: boolean;
+      isEmailVerified: boolean;
+      isPhoneVerified: boolean;
+      lastLoginAt?: string;
+      createdAt?: string;
+      updatedAt?: string;
+    };
+    profile: ProfileResponse | null;
+    recentLoginActivity: Array<{
+      id: string;
+      deviceInfo: {
+        browser: string;
+        os: string;
+        device: string;
+      };
+      ipAddress: string;
+      loginAt: string;
+      isActive: boolean;
+      sessionId: string;
+    }>;
   };
-  profile: ProfileResponse | null;
 }
 
 class ProfileService {

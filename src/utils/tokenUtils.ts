@@ -16,6 +16,11 @@ export const tokenUtils = {
     }
   },
 
+  // Get access token from localStorage
+  getAccessToken: (): string | null => {
+    return localStorage.getItem('acquireflow-access-token');
+  },
+
   // Get valid token or redirect to login
   getValidToken: (): string | null => {
     const token = localStorage.getItem('acquireflow-access-token');

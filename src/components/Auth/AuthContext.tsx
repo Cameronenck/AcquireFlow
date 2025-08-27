@@ -25,6 +25,7 @@ type AuthContextType = {
   loginWithGoogle: () => Promise<void>;
   logout: () => void;
   resetPassword: (email: string) => Promise<void>;
+  refreshAccessToken: (refreshToken: string) => Promise<string | null>;
 };
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{
@@ -36,14 +37,176 @@ export const AuthProvider: React.FC<{
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const authStore = useAppStore();
   const navigate = useNavigate();
+  // Function to refresh access token
+  const refreshAccessToken = async (refreshToken: string): Promise<string | null> => {
+    try {
+      const response = await fetch(`${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000'}/api/v1/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refreshToken })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const newAccessToken = data.data.accessToken;
+        
+        // Update stored token
+        localStorage.setItem('acquireflow-access-token', newAccessToken);
+        
+        // Update store
+        authStore.auth.setTokens({
+          accessToken: newAccessToken,
+          refreshToken,
+          expiresAt: Date.now() + (data.data.expiresIn * 1000)
+        });
+        
+        return newAccessToken;
+      }
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+    }
+    return null;
+  };
+
   // Listen for auth state changes when component mounts
   useEffect(() => {
     // Check if we have valid backend tokens first (for refresh scenarios)
     const checkExistingAuth = async () => {
+      // Check localStorage for existing tokens first
+      const storedAccessToken = localStorage.getItem('acquireflow-access-token');
+      const storedRefreshToken = localStorage.getItem('acquireflow-refresh-token');
+      const storedUserData = localStorage.getItem('acquireflow-user-data');
+      
+      console.log('🔍 Checking existing auth on refresh:', {
+        hasStoredToken: !!storedAccessToken,
+        hasStoredRefreshToken: !!storedRefreshToken,
+        hasStoredUserData: !!storedUserData
+      });
+      
+      // If we have stored tokens and user data, try to restore the session
+      if (storedAccessToken && storedUserData) {
+        try {
+          const userData = JSON.parse(storedUserData);
+          console.log('✅ Found stored tokens, validating token...');
+          
+          // Validate the token by making a simple API call
+          try {
+            const response = await fetch(`${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000'}/api/v1/profile/complete`, {
+              headers: {
+                'Authorization': `Bearer ${storedAccessToken}`,
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            if (response.ok) {
+              console.log('✅ Token is valid, restoring session from localStorage');
+              
+              // Restore the session in the store
+              authStore.auth.setTokens({ 
+                accessToken: storedAccessToken, 
+                refreshToken: storedRefreshToken, 
+                expiresAt: Date.now() + (24 * 60 * 60 * 1000) // Assume 24 hours validity
+              });
+              
+              // Restore user data
+              const restoredUser = {
+                id: userData.id,
+                name: `${userData.firstName} ${userData.lastName}`.trim() || userData.email,
+                email: userData.email
+              };
+              
+              authStore.auth.loginSuccess({ 
+                token: storedAccessToken, 
+                user: restoredUser 
+              });
+              
+              setUser(restoredUser);
+              setIsLoading(false);
+              return;
+            } else if (response.status === 401 && storedRefreshToken) {
+              // Token expired, try to refresh it
+              console.log('🔄 Token expired, attempting to refresh...');
+              try {
+                const refreshResponse = await fetch(`${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000'}/api/v1/auth/refresh`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ refreshToken: storedRefreshToken })
+                });
+                
+                if (refreshResponse.ok) {
+                  const refreshData = await refreshResponse.json();
+                  console.log('✅ Token refreshed successfully');
+                  
+                  // Update stored tokens
+                  localStorage.setItem('acquireflow-access-token', refreshData.data.accessToken);
+                  
+                  // Restore the session in the store with new token
+                  authStore.auth.setTokens({ 
+                    accessToken: refreshData.data.accessToken, 
+                    refreshToken: storedRefreshToken, 
+                    expiresAt: Date.now() + (refreshData.data.expiresIn * 1000)
+                  });
+                  
+                  // Restore user data
+                  const restoredUser = {
+                    id: userData.id,
+                    name: `${userData.firstName} ${userData.lastName}`.trim() || userData.email,
+                    email: userData.email
+                  };
+                  
+                  authStore.auth.loginSuccess({ 
+                    token: refreshData.data.accessToken, 
+                    user: restoredUser 
+                  });
+                  
+                  setUser(restoredUser);
+                  setIsLoading(false);
+                  return;
+                } else {
+                  console.log('❌ Token refresh failed, clearing stored data');
+                  // Clear invalid data
+                  localStorage.removeItem('acquireflow-access-token');
+                  localStorage.removeItem('acquireflow-refresh-token');
+                  localStorage.removeItem('acquireflow-user-data');
+                }
+              } catch (refreshError) {
+                console.error('Error refreshing token:', refreshError);
+                // Clear invalid data
+                localStorage.removeItem('acquireflow-access-token');
+                localStorage.removeItem('acquireflow-refresh-token');
+                localStorage.removeItem('acquireflow-user-data');
+              }
+            } else {
+              console.log('❌ Token is invalid, clearing stored data');
+              // Clear invalid data
+              localStorage.removeItem('acquireflow-access-token');
+              localStorage.removeItem('acquireflow-refresh-token');
+              localStorage.removeItem('acquireflow-user-data');
+            }
+          } catch (apiError) {
+            console.error('Error validating token:', apiError);
+            // Clear invalid data
+            localStorage.removeItem('acquireflow-access-token');
+            localStorage.removeItem('acquireflow-refresh-token');
+            localStorage.removeItem('acquireflow-user-data');
+          }
+        } catch (error) {
+          console.error('Error restoring session from localStorage:', error);
+          // Clear invalid data
+          localStorage.removeItem('acquireflow-access-token');
+          localStorage.removeItem('acquireflow-refresh-token');
+          localStorage.removeItem('acquireflow-user-data');
+        }
+      }
+      
       // Get current auth state from the store
       const currentAuth = authStore.auth;
       
-      console.log('🔍 Checking existing auth on refresh:', {
+      console.log('🔍 Checking store auth state:', {
         hasToken: !!currentAuth.accessToken,
         hasUser: !!currentAuth.user,
         hasExpiresAt: !!currentAuth.expiresAt,
@@ -52,9 +215,9 @@ export const AuthProvider: React.FC<{
         isExpired: currentAuth.expiresAt ? Date.now() >= currentAuth.expiresAt : true
       });
       
-      // If we have a valid token and user, restore the session
+      // If we have a valid token and user in store, restore the session
       if (currentAuth.accessToken && currentAuth.user && currentAuth.expiresAt && Date.now() < currentAuth.expiresAt) {
-        console.log('✅ Restoring session from backend tokens');
+        console.log('✅ Restoring session from store tokens');
         setUser({ 
           id: currentAuth.user.id, 
           name: currentAuth.user.name || '', 
@@ -64,8 +227,8 @@ export const AuthProvider: React.FC<{
         return;
       }
       
-      console.log('❌ No valid backend tokens, checking Firebase auth state');
-      // If no valid backend tokens, check Firebase auth state
+      console.log('❌ No valid tokens found, checking Firebase auth state');
+      // If no valid tokens, check Firebase auth state
       authStore.auth.setLoading(true);
       const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         if (firebaseUser) {
@@ -88,6 +251,23 @@ export const AuthProvider: React.FC<{
     };
     
     checkExistingAuth();
+    
+    // Set up periodic token refresh (every 5 minutes)
+    const tokenRefreshInterval = setInterval(async () => {
+      const currentAuth = authStore.auth;
+      if (currentAuth.refreshToken && currentAuth.expiresAt) {
+        const timeUntilExpiry = currentAuth.expiresAt - Date.now();
+        // Refresh token if it expires in less than 10 minutes
+        if (timeUntilExpiry < 10 * 60 * 1000) {
+          console.log('🔄 Token expires soon, refreshing...');
+          await refreshAccessToken(currentAuth.refreshToken);
+        }
+      }
+    }, 5 * 60 * 1000); // Check every 5 minutes
+    
+    return () => {
+      clearInterval(tokenRefreshInterval);
+    };
   }, []);
 
   // ---------------- Dev bypass (commented out) ----------------
@@ -114,8 +294,8 @@ export const AuthProvider: React.FC<{
       localStorage.setItem('acquireflow-refresh-token', refreshToken);
       localStorage.setItem('acquireflow-user-data', JSON.stringify({
         id: user.id,
-        firstName: user.name.split(' ')[0] || '',
-        lastName: user.name.split(' ').slice(1).join(' ') || '',
+        firstName: (user.name || '').split(' ')[0] || '',
+        lastName: (user.name || '').split(' ').slice(1).join(' ') || '',
         email: user.email,
         role: user.roles?.[0] || ''
       }));
@@ -146,8 +326,8 @@ export const AuthProvider: React.FC<{
       localStorage.setItem('acquireflow-refresh-token', refreshToken);
       localStorage.setItem('acquireflow-user-data', JSON.stringify({
         id: appUser.id,
-        firstName: appUser.name.split(' ')[0] || '',
-        lastName: appUser.name.split(' ').slice(1).join(' ') || '',
+        firstName: (appUser.name || '').split(' ')[0] || '',
+        lastName: (appUser.name || '').split(' ').slice(1).join(' ') || '',
         email: appUser.email,
         role: appUser.roles?.[0] || ''
       }));
@@ -214,8 +394,8 @@ export const AuthProvider: React.FC<{
       localStorage.setItem('acquireflow-refresh-token', refreshToken);
       localStorage.setItem('acquireflow-user-data', JSON.stringify({
         id: user.id,
-        firstName: user.name.split(' ')[0] || '',
-        lastName: user.name.split(' ').slice(1).join(' ') || '',
+        firstName: (user.name || '').split(' ')[0] || '',
+        lastName: (user.name || '').split(' ').slice(1).join(' ') || '',
         email: user.email,
         role: user.roles?.[0] || ''
       }));
@@ -270,7 +450,8 @@ export const AuthProvider: React.FC<{
     signup,
     loginWithGoogle,
     logout,
-    resetPassword
+    resetPassword,
+    refreshAccessToken // Expose refresh function for external use
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

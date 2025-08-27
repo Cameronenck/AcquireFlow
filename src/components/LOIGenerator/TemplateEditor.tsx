@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { X, Save, Trash, Edit, AlertTriangle } from 'lucide-react';
+import { LOITemplate as LOITemplateType } from '../../services/loiTemplateService';
+
 export interface LOITemplate {
-  id: string;
+  _id: string;
   name: string;
   description: string;
   content: string;
-  icon: React.ReactNode;
+  icon: string;
   isCustom?: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  isDefault?: boolean;
+  category?: string;
+  tags?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 interface TemplateEditorProps {
   template: LOITemplate;

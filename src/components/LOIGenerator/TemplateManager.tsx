@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import { Plus, Edit, Trash, FileText, Check, DollarSign, Home, Calendar, AlertTriangle } from 'lucide-react';
 import { LOITemplate } from './TemplateEditor';
+
+// Helper function to convert icon string to React component
+const getIconComponent = (iconName: string): React.ReactNode => {
+  const iconMap: { [key: string]: React.ReactNode } = {
+    'DollarSign': <DollarSign size={20} className="text-primary" />,
+    'Home': <Home size={20} className="text-primary" />,
+    'Calendar': <Calendar size={20} className="text-primary" />,
+    'AlertTriangle': <AlertTriangle size={20} className="text-primary" />,
+    'FileText': <FileText size={20} className="text-primary" />
+  };
+  return iconMap[iconName] || <FileText size={20} className="text-primary" />;
+};
 interface TemplateManagerProps {
   templates: LOITemplate[];
   selectedTemplate: LOITemplate;
@@ -39,15 +51,15 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
           System Templates
         </h3>
         <div className="grid grid-cols-1 gap-3">
-          {systemTemplates.map(template => <div key={template.id} className={`border rounded-lg p-3 cursor-pointer transition-all flex items-center ${selectedTemplate.id === template.id ? 'border-primary bg-primary bg-opacity-5' : 'border-gray-200 hover:border-gray-300'}`} onClick={() => onSelectTemplate(template)}>
+          {systemTemplates.map(template => <div key={template._id} className={`border rounded-lg p-3 cursor-pointer transition-all flex items-center ${selectedTemplate._id === template._id ? 'border-primary bg-primary bg-opacity-5' : 'border-gray-200 hover:border-gray-300'}`} onClick={() => onSelectTemplate(template)}>
               <div className="p-2 bg-gray-100 rounded-lg mr-3">
-                {template.icon}
+                {getIconComponent(template.icon)}
               </div>
               <div className="flex-1">
                 <h4 className="font-medium text-sm">{template.name}</h4>
                 <p className="text-xs text-gray-500">{template.description}</p>
               </div>
-              {selectedTemplate.id === template.id && <div className="bg-primary rounded-full p-1">
+              {selectedTemplate._id === template._id && <div className="bg-primary rounded-full p-1">
                   <Check size={14} className="text-white" />
                 </div>}
             </div>)}
@@ -71,7 +83,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
               Create your first template
             </button>
           </div> : <div className="grid grid-cols-1 gap-3">
-            {customTemplates.map(template => <div key={template.id} className={`border rounded-lg p-3 transition-all ${selectedTemplate.id === template.id ? 'border-primary bg-primary bg-opacity-5' : 'border-gray-200'}`}>
+            {customTemplates.map(template => <div key={template._id} className={`border rounded-lg p-3 transition-all ${selectedTemplate._id === template._id ? 'border-primary bg-primary bg-opacity-5' : 'border-gray-200'}`}>
                 <div className="flex items-center mb-2">
                   <div className="p-2 bg-gray-100 rounded-lg mr-3 cursor-pointer" onClick={() => onSelectTemplate(template)}>
                     <FileText size={16} className="text-primary" />
@@ -82,15 +94,15 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                       {template.description}
                     </p>
                   </div>
-                  {selectedTemplate.id === template.id && <div className="bg-primary rounded-full p-1 mr-2">
+                  {selectedTemplate._id === template._id && <div className="bg-primary rounded-full p-1 mr-2">
                       <Check size={14} className="text-white" />
                     </div>}
                 </div>
-                {showConfirmDelete === template.id ? <div className="flex items-center justify-end mt-2 text-xs">
+                {showConfirmDelete === template._id ? <div className="flex items-center justify-end mt-2 text-xs">
                     <span className="text-gray-500 mr-2">
                       Delete this template?
                     </span>
-                    <button className="px-2 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 mr-1" onClick={() => handleDelete(template.id)}>
+                    <button className="px-2 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100 mr-1" onClick={() => handleDelete(template._id)}>
                       Yes
                     </button>
                     <button className="px-2 py-1 bg-gray-100 text-gray-600 rounded hover:bg-gray-200" onClick={handleCancelDelete}>
@@ -100,7 +112,7 @@ export const TemplateManager: React.FC<TemplateManagerProps> = ({
                     <button className="p-1.5 text-gray-400 hover:text-primary rounded-full hover:bg-gray-100" onClick={() => onEditTemplate(template)} title="Edit Template">
                       <Edit size={14} />
                     </button>
-                    <button className="p-1.5 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100" onClick={() => handleConfirmDelete(template.id)} title="Delete Template">
+                    <button className="p-1.5 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-100" onClick={() => handleConfirmDelete(template._id)} title="Delete Template">
                       <Trash size={14} />
                     </button>
                   </div>}

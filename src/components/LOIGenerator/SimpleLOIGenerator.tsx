@@ -4,32 +4,155 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { TemplateEditor, LOITemplate } from './TemplateEditor';
 import { TemplateManager } from './TemplateManager';
+import { loiTemplateService, LOITemplate as LOITemplateType } from '../../services/loiTemplateService';
 export const SimpleLOIGenerator = () => {
   // Templates
   const defaultTemplates: LOITemplate[] = [{
-    id: 'standard-cash',
+    _id: 'standard-cash',
     name: 'Standard Cash Offer',
     description: 'Quick closing with cash offer',
-    icon: <DollarSign size={20} className="text-primary" />,
-    content: ''
+    icon: 'DollarSign',
+    content: `Dear [AGENT_NAME],
+
+I am writing to express my interest in purchasing the property located at [PROPERTY_ADDRESS]. After careful consideration of the property's location, condition, and potential, I would like to submit the following Letter of Intent:
+
+**Purchase Price:** [OFFER_AMOUNT]
+**Earnest Money Deposit:** [EARNEST_MONEY]
+**Closing Timeline:** [CLOSING_TIMELINE] days from acceptance
+**Inspection Period:** [INSPECTION_PERIOD] days
+
+**Financing:** Cash offer with no financing contingency
+**Proof of Funds:** Available upon request
+**Contingencies:** Inspection
+
+I am prepared to move forward quickly with this cash offer and can provide proof of funds immediately upon request. With no financing contingency, we can close in as little as [CLOSING_TIMELINE] days, providing you with certainty and a clean, efficient transaction.
+
+My team and I have extensive experience in real estate acquisitions in this area and are committed to a smooth transaction process.
+
+Please consider this a formal expression of my interest in the property. I look forward to your response and am available to discuss any aspects of this offer at your convenience.
+
+Sincerely,
+[YOUR_NAME]
+[YOUR_COMPANY]
+[YOUR_CONTACT_INFO]`,
+    isCustom: false,
+    isDefault: true,
+    category: 'cash-offer',
+    tags: ['cash', 'quick-close', 'no-financing'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }, {
-    id: 'subject-to',
+    _id: 'subject-to',
     name: 'Subject To Acquisition',
     description: 'Take over existing financing',
-    icon: <Home size={20} className="text-primary" />,
-    content: ''
+    icon: 'Home',
+    content: `Dear [AGENT_NAME],
+
+I am writing to express my interest in purchasing the property located at [PROPERTY_ADDRESS]. After careful consideration of the property's location, condition, and potential, I would like to submit the following Letter of Intent:
+
+**Purchase Price:** [OFFER_AMOUNT]
+**Earnest Money Deposit:** [EARNEST_MONEY]
+**Closing Timeline:** [CLOSING_TIMELINE] days from acceptance
+**Inspection Period:** [INSPECTION_PERIOD] days
+
+**Contingencies:** Inspection, Appraisal
+
+**Subject To Existing Financing:** This offer is made subject to the existing financing on the property. Buyer intends to take over the existing mortgage payments while keeping the loan in the Seller's name, with appropriate legal safeguards for both parties.
+
+This "Subject-To" offer allows you to sell your property without paying off your existing mortgage. I will take over the responsibility of making the mortgage payments while you receive the difference between your mortgage balance and the purchase price in cash at closing.
+
+My team and I have extensive experience in real estate acquisitions in this area and are committed to a smooth transaction process.
+
+Please consider this a formal expression of my interest in the property. I look forward to your response and am available to discuss any aspects of this offer at your convenience.
+
+Sincerely,
+[YOUR_NAME]
+[YOUR_COMPANY]
+[YOUR_CONTACT_INFO]`,
+    isCustom: false,
+    isDefault: true,
+    category: 'subject-to',
+    tags: ['subject-to', 'existing-financing', 'mortgage-assumption'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }, {
-    id: 'seller-financing',
+    _id: 'seller-financing',
     name: 'Seller Financing Offer',
     description: 'Owner financing terms',
-    icon: <Calendar size={20} className="text-primary" />,
-    content: ''
+    icon: 'Calendar',
+    content: `Dear [AGENT_NAME],
+
+I am writing to express my interest in purchasing the property located at [PROPERTY_ADDRESS]. After careful consideration of the property's location, condition, and potential, I would like to submit the following Letter of Intent:
+
+**Purchase Price:** [OFFER_AMOUNT]
+**Earnest Money Deposit:** [EARNEST_MONEY]
+**Closing Timeline:** [CLOSING_TIMELINE] days from acceptance
+**Inspection Period:** [INSPECTION_PERIOD] days
+
+**Contingencies:** Inspection, Appraisal
+
+**Seller Financing Terms:**
+- Down Payment: [DOWN_PAYMENT_AMOUNT]
+- Financed Amount: [FINANCED_AMOUNT]
+- Interest Rate: [INTEREST_RATE]%
+- Loan Term: [LOAN_TERM] years
+- Monthly Payment: [MONTHLY_PAYMENT]
+
+The seller financing structure outlined above provides you with an immediate down payment plus ongoing monthly income at an attractive interest rate. This arrangement can offer tax advantages by spreading your capital gains over time while providing a competitive return on your equity.
+
+My team and I have extensive experience in real estate acquisitions in this area and are committed to a smooth transaction process.
+
+Please consider this a formal expression of my interest in the property. I look forward to your response and am available to discuss any aspects of this offer at your convenience.
+
+Sincerely,
+[YOUR_NAME]
+[YOUR_COMPANY]
+[YOUR_CONTACT_INFO]`,
+    isCustom: false,
+    isDefault: true,
+    category: 'seller-financing',
+    tags: ['seller-financing', 'owner-financing', 'monthly-income'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }, {
-    id: 'hybrid',
+    _id: 'hybrid',
     name: 'Hybrid Offer- Subject To + Seller Finance',
     description: 'Combined financing approach',
-    icon: <AlertTriangle size={20} className="text-primary" />,
-    content: ''
+    icon: 'AlertTriangle',
+    content: `Dear [AGENT_NAME],
+
+I am writing to express my interest in purchasing the property located at [PROPERTY_ADDRESS]. After careful consideration of the property's location, condition, and potential, I would like to submit the following Letter of Intent:
+
+**Purchase Price:** [OFFER_AMOUNT]
+**Earnest Money Deposit:** [EARNEST_MONEY]
+**Closing Timeline:** [CLOSING_TIMELINE] days from acceptance
+**Inspection Period:** [INSPECTION_PERIOD] days
+
+**Contingencies:** Inspection, Appraisal
+
+**Hybrid Financing Structure:**
+- Assumption of Existing Mortgage: [ASSUMED_LOAN_BALANCE]
+- Seller Financing: [SELLER_FINANCE_AMOUNT]
+  - Interest Rate: [INTEREST_RATE]%
+  - Term: [LOAN_TERM] years
+- Cash Down Payment: [CASH_DOWN_PAYMENT]
+
+This hybrid structure combines the benefits of a Subject-To transaction with seller financing. You'll receive an immediate cash payment while you also creating ongoing monthly income from the seller-financed portion. This creative approach maximizes flexibility for both parties while allowing for a faster closing than traditional financing would permit.
+
+My team and I have extensive experience in real estate acquisitions in this area and are committed to a smooth transaction process.
+
+Please consider this a formal expression of my interest in the property. I look forward to your response and am available to discuss any aspects of this offer at your convenience.
+
+Sincerely,
+[YOUR_NAME]
+[YOUR_COMPANY]
+[YOUR_CONTACT_INFO]`,
+    isCustom: false,
+    isDefault: true,
+    category: 'hybrid',
+    tags: ['hybrid', 'subject-to', 'seller-financing', 'creative-financing'],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }];
   // Mock property data
   const properties = [{
@@ -59,19 +182,86 @@ export const SimpleLOIGenerator = () => {
     agentPhone: '(305) 555-6789',
     agentCompany: 'Miami Property Experts'
   }];
-  // Load saved templates from localStorage
-  const loadSavedTemplates = (): LOITemplate[] => {
+  // Load templates from API
+  const loadTemplates = async () => {
+    setIsLoadingTemplates(true);
     try {
-      const savedTemplates = localStorage.getItem('loiTemplates');
-      return savedTemplates ? JSON.parse(savedTemplates) : [];
+      const apiTemplates = await loiTemplateService.getUserTemplates();
+      // Convert API templates to component format
+      const convertedTemplates: LOITemplate[] = apiTemplates.map(template => ({
+        _id: template._id,
+        name: template.name,
+        description: template.description,
+        content: template.content,
+        icon: template.icon,
+        isCustom: template.isCustom,
+        isDefault: template.isDefault,
+        category: template.category,
+        tags: template.tags,
+        createdAt: template.createdAt,
+        updatedAt: template.updatedAt
+      }));
+      
+      // If no templates from API, seed defaults and try again
+      if (convertedTemplates.length === 0) {
+        try {
+          await loiTemplateService.seedDefaultTemplates();
+          const defaultApiTemplates = await loiTemplateService.getUserTemplates();
+          const defaultConvertedTemplates: LOITemplate[] = defaultApiTemplates.map(template => ({
+            _id: template._id,
+            name: template.name,
+            description: template.description,
+            content: template.content,
+            icon: template.icon,
+            isCustom: template.isCustom,
+            isDefault: template.isDefault,
+            category: template.category,
+            tags: template.tags,
+            createdAt: template.createdAt,
+            updatedAt: template.updatedAt
+          }));
+          setTemplates(defaultConvertedTemplates);
+          setSelectedTemplate(defaultConvertedTemplates[0]);
+          setIsLoadingTemplates(false);
+          return;
+        } catch (seedError) {
+          console.error('Error seeding default templates:', seedError);
+          // If seeding fails, use local defaults
+          setTemplates(defaultTemplates);
+          setSelectedTemplate(defaultTemplates[0]);
+          setIsLoadingTemplates(false);
+          return;
+        }
+      }
+      
+      setTemplates(convertedTemplates);
+      setSelectedTemplate(convertedTemplates[0]);
     } catch (error) {
-      console.error('Error loading templates:', error);
-      return [];
+      console.error('Error loading templates from API:', error);
+      // Fallback to default templates
+      setTemplates(defaultTemplates);
+      setSelectedTemplate(defaultTemplates[0]);
+    } finally {
+      setIsLoadingTemplates(false);
     }
   };
+
+  // Helper function to convert icon string to React component
+  const getIconComponent = (iconName: string): React.ReactNode => {
+    const iconMap: { [key: string]: React.ReactNode } = {
+      'DollarSign': <DollarSign size={20} className="text-primary" />,
+      'Home': <Home size={20} className="text-primary" />,
+      'Calendar': <Calendar size={20} className="text-primary" />,
+      'AlertTriangle': <AlertTriangle size={20} className="text-primary" />,
+      'FileText': <FileText size={20} className="text-primary" />
+    };
+    return iconMap[iconName] || <FileText size={20} className="text-primary" />;
+  };
+
   // State
-  const [templates, setTemplates] = useState<LOITemplate[]>([...defaultTemplates, ...loadSavedTemplates()]);
-  const [selectedTemplate, setSelectedTemplate] = useState<LOITemplate>(templates[0]);
+  const [templates, setTemplates] = useState<LOITemplate[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<LOITemplate | null>(null);
+  const [isLoadingTemplates, setIsLoadingTemplates] = useState(true);
   const [selectedProperty, setSelectedProperty] = useState(properties[0]);
   const [offerPercentage, setOfferPercentage] = useState(80);
   const [customOfferAmount, setCustomOfferAmount] = useState('');
@@ -123,7 +313,7 @@ export const SimpleLOIGenerator = () => {
   };
   const monthlyPayment = calculateMonthlyPayment();
   // Format currency
-  const formatCurrency = amount => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -131,21 +321,26 @@ export const SimpleLOIGenerator = () => {
       maximumFractionDigits: 0
     }).format(amount);
   };
+  // Load templates when component mounts
+  useEffect(() => {
+    loadTemplates();
+  }, []);
+
   // Update earnest money amount when offer changes
   useEffect(() => {
     setEarnestMoneyAmount(Math.round(offerAmount * (earnestMoney / 100)));
   }, [offerAmount, earnestMoney]);
   // Add a ref for the LOI content
-  const loiContentRef = useRef(null);
+  const loiContentRef = useRef<HTMLDivElement>(null);
   // Add a loading state for PDF generation
   const [isPdfGenerating, setIsPdfGenerating] = useState(false);
   // Handle percentage button click
-  const handlePercentageClick = percentage => {
+  const handlePercentageClick = (percentage: number) => {
     setOfferPercentage(percentage);
     setCustomOfferAmount('');
   };
   // Handle custom offer amount change
-  const handleCustomOfferChange = e => {
+  const handleCustomOfferChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, '');
     setCustomOfferAmount(value);
     // Calculate percentage based on custom amount
@@ -155,21 +350,21 @@ export const SimpleLOIGenerator = () => {
     }
   };
   // Handle subject to option change
-  const handleSubjectToChange = (option, value) => {
+  const handleSubjectToChange = (option: string, value: boolean | string) => {
     setSubjectToOptions({
       ...subjectToOptions,
       [option]: value
     });
   };
   // Handle seller financing term change
-  const handleFinancingTermChange = (term, value) => {
+  const handleFinancingTermChange = (term: string, value: number | boolean) => {
     setSellerFinancingTerms({
       ...sellerFinancingTerms,
       [term]: value
     });
   };
   // Handle hybrid financing term change
-  const handleHybridTermChange = (term, value) => {
+  const handleHybridTermChange = (term: string, value: number | boolean) => {
     setHybridFinancingTerms({
       ...hybridFinancingTerms,
       [term]: value
@@ -199,52 +394,120 @@ export const SimpleLOIGenerator = () => {
       balloonTerm: 5
     });
   };
+  
   // Template management functions
   const handleCreateTemplate = () => {
     const newTemplate: LOITemplate = {
-      id: `custom-${Date.now()}`,
+      _id: `custom-${Date.now()}`,
       name: 'New Custom Template',
       description: 'My custom template',
       content: generateDefaultTemplateContent(),
-      icon: <FileText size={20} className="text-primary" />,
+      icon: 'FileText',
       isCustom: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      isDefault: false,
+      category: 'custom',
+      tags: ['custom'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
     setEditingTemplate(newTemplate);
     setIsCreatingTemplate(true);
     setShowTemplateEditor(true);
   };
+
   const handleEditTemplate = (template: LOITemplate) => {
     setEditingTemplate(template);
     setIsCreatingTemplate(false);
     setShowTemplateEditor(true);
   };
-  const handleDeleteTemplate = (templateId: string) => {
-    const updatedTemplates = templates.filter(t => t.id !== templateId);
-    setTemplates(updatedTemplates);
-    // If the deleted template was selected, select the first available template
-    if (selectedTemplate.id === templateId) {
-      setSelectedTemplate(updatedTemplates[0]);
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    try {
+      await loiTemplateService.deleteTemplate(templateId);
+      const updatedTemplates = templates.filter(t => t._id !== templateId);
+      setTemplates(updatedTemplates);
+      // If the deleted template was selected, select the first available template
+      if (selectedTemplate && selectedTemplate._id === templateId) {
+        setSelectedTemplate(updatedTemplates[0] || null);
+      }
+    } catch (error) {
+      console.error('Error deleting template:', error);
+      alert('Failed to delete template. Please try again.');
     }
-    // Save to localStorage
-    localStorage.setItem('loiTemplates', JSON.stringify(updatedTemplates.filter(t => t.isCustom)));
   };
-  const handleSaveTemplate = (template: LOITemplate) => {
-    let updatedTemplates;
-    if (isCreatingTemplate) {
-      updatedTemplates = [...templates, template];
-    } else {
-      updatedTemplates = templates.map(t => t.id === template.id ? template : t);
+
+  const handleSaveTemplate = async (template: LOITemplate) => {
+    try {
+      let savedTemplate: LOITemplate;
+      
+      if (isCreatingTemplate) {
+        // Create new template via API
+        const apiTemplate = await loiTemplateService.createTemplate({
+          name: template.name,
+          description: template.description,
+          content: template.content,
+          icon: template.icon,
+          category: template.category,
+          tags: template.tags
+        });
+        
+        // Convert API response to component format
+        savedTemplate = {
+          _id: apiTemplate._id,
+          name: apiTemplate.name,
+          description: apiTemplate.description,
+          content: apiTemplate.content,
+          icon: apiTemplate.icon,
+          isCustom: apiTemplate.isCustom,
+          isDefault: apiTemplate.isDefault,
+          category: apiTemplate.category,
+          tags: apiTemplate.tags,
+          createdAt: apiTemplate.createdAt,
+          updatedAt: apiTemplate.updatedAt
+        };
+        
+        const updatedTemplates = [...templates, savedTemplate];
+        setTemplates(updatedTemplates);
+      } else {
+        // Update existing template via API
+        const apiTemplate = await loiTemplateService.updateTemplate(template._id, {
+          name: template.name,
+          description: template.description,
+          content: template.content,
+          icon: template.icon,
+          category: template.category,
+          tags: template.tags
+        });
+        
+        // Convert API response to component format
+        savedTemplate = {
+          _id: apiTemplate._id,
+          name: apiTemplate.name,
+          description: apiTemplate.description,
+          content: apiTemplate.content,
+          icon: apiTemplate.icon,
+          isCustom: apiTemplate.isCustom,
+          isDefault: apiTemplate.isDefault,
+          category: apiTemplate.category,
+          tags: apiTemplate.tags,
+          createdAt: apiTemplate.createdAt,
+          updatedAt: apiTemplate.updatedAt
+        };
+        
+        const updatedTemplates = templates.map(t => t._id === template._id ? savedTemplate : t);
+        setTemplates(updatedTemplates);
+      }
+      
+      setSelectedTemplate(savedTemplate);
+      setShowTemplateEditor(false);
+      setEditingTemplate(null);
+      setIsCreatingTemplate(false);
+    } catch (error) {
+      console.error('Error saving template:', error);
+      alert('Failed to save template. Please try again.');
     }
-    setTemplates(updatedTemplates);
-    setSelectedTemplate(template);
-    setShowTemplateEditor(false);
-    setEditingTemplate(null);
-    setIsCreatingTemplate(false);
-    // Save to localStorage (only custom templates)
-    localStorage.setItem('loiTemplates', JSON.stringify(updatedTemplates.filter(t => t.isCustom)));
   };
+
   const handleCancelTemplateEdit = () => {
     setShowTemplateEditor(false);
     setEditingTemplate(null);
@@ -265,6 +528,35 @@ Sincerely,
 [YOUR_COMPANY]
 [YOUR_CONTACT_INFO]`;
   };
+
+  // Function to replace placeholders in template content
+  const replacePlaceholders = (templateContent: string) => {
+    return templateContent
+      .replace(/\[PROPERTY_ADDRESS\]/g, selectedProperty.address)
+      .replace(/\[AGENT_NAME\]/g, selectedProperty.agent)
+      .replace(/\[AGENT_EMAIL\]/g, selectedProperty.agentEmail)
+      .replace(/\[AGENT_PHONE\]/g, selectedProperty.agentPhone)
+      .replace(/\[AGENT_COMPANY\]/g, selectedProperty.agentCompany)
+      .replace(/\[OFFER_AMOUNT\]/g, formatCurrency(offerAmount))
+      .replace(/\[EARNEST_MONEY\]/g, formatCurrency(earnestMoneyAmount))
+      .replace(/\[CLOSING_TIMELINE\]/g, closingTimeline.toString())
+      .replace(/\[INSPECTION_PERIOD\]/g, inspectionPeriod.toString())
+      .replace(/\[LIST_PRICE\]/g, formatCurrency(selectedProperty.price))
+      .replace(/\[OFFER_PERCENTAGE\]/g, offerPercentage.toString())
+      .replace(/\[PROPERTY_TYPE\]/g, selectedProperty.type)
+      .replace(/\[YOUR_NAME\]/g, 'Your Name')
+      .replace(/\[YOUR_COMPANY\]/g, 'AcquireFlow Real Estate')
+      .replace(/\[YOUR_CONTACT_INFO\]/g, '(555) 123-4567\ninvestor@acquireflow.com')
+      // Additional placeholders for specific templates
+      .replace(/\[DOWN_PAYMENT_AMOUNT\]/g, formatCurrency(offerAmount * (sellerFinancingTerms.downPayment / 100)))
+      .replace(/\[FINANCED_AMOUNT\]/g, formatCurrency(offerAmount * (1 - sellerFinancingTerms.downPayment / 100)))
+      .replace(/\[INTEREST_RATE\]/g, sellerFinancingTerms.interestRate.toString())
+      .replace(/\[LOAN_TERM\]/g, sellerFinancingTerms.loanTerm.toString())
+      .replace(/\[MONTHLY_PAYMENT\]/g, formatCurrency(monthlyPayment))
+      .replace(/\[ASSUMED_LOAN_BALANCE\]/g, formatCurrency(hybridFinancingTerms.assumedLoanBalance))
+      .replace(/\[SELLER_FINANCE_AMOUNT\]/g, formatCurrency(hybridFinancingTerms.sellerFinanceAmount))
+      .replace(/\[CASH_DOWN_PAYMENT\]/g, formatCurrency(hybridFinancingTerms.downPayment));
+  };
   // Function to generate and download PDF
   const handleDownloadPDF = async () => {
     if (!loiContentRef.current) return;
@@ -274,8 +566,7 @@ Sincerely,
       const canvas = await html2canvas(content, {
         scale: 2,
         useCORS: true,
-        logging: false,
-        letterRendering: true
+        logging: false
       });
       const imgWidth = 210; // A4 width in mm
       const imgHeight = canvas.height * imgWidth / canvas.width;
@@ -303,22 +594,57 @@ Sincerely,
   };
   // Save current template as a new custom template
   const handleSaveCurrentAsTemplate = () => {
+    if (!selectedTemplate) return;
+    
     // Generate a preview of the current LOI content
-    const loiContent = loiContentRef.current?.innerText || '';
+    const loiContent = loiContentRef.current?.textContent || '';
     const newTemplate: LOITemplate = {
-      id: `custom-${Date.now()}`,
+      _id: `custom-${Date.now()}`,
       name: `Template based on ${selectedTemplate.name}`,
       description: 'Custom template created from current LOI',
       content: loiContent,
-      icon: <FileText size={20} className="text-primary" />,
+      icon: 'FileText',
       isCustom: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      isDefault: false,
+      category: 'custom',
+      tags: ['custom', 'derived'],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
     setEditingTemplate(newTemplate);
     setIsCreatingTemplate(true);
     setShowTemplateEditor(true);
   };
+  // Show loading state while templates are being fetched
+  if (isLoadingTemplates) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader size={48} className="animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-600">Loading templates...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if no templates are available
+  if (!selectedTemplate || templates.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertTriangle size={48} className="text-red-500 mx-auto mb-4" />
+          <p className="text-gray-600 mb-4">No templates available</p>
+          <button 
+            onClick={loadTemplates}
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-all"
+          >
+            Retry Loading Templates
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return <div className="flex flex-col lg:flex-row gap-6">
       {/* Left Panel - Template Selection & Settings (40%) */}
       <div className="w-full lg:w-2/5 space-y-6">
@@ -528,7 +854,7 @@ Sincerely,
             </div>
           </div>
           {/* Seller Financing Terms - Only show for Seller Financing template */}
-          {selectedTemplate.id === 'seller-financing' && <div className="p-4 border-b border-gray-200">
+          {selectedTemplate && selectedTemplate._id === 'seller-financing' && <div className="p-4 border-b border-gray-200">
               <h3 className="text-sm font-medium text-gray-700 mb-3">
                 Seller Financing Terms
               </h3>
@@ -604,7 +930,7 @@ Sincerely,
               </div>
             </div>}
           {/* Subject To Existing Mortgage Details - Only show for Subject To template */}
-          {selectedTemplate.id === 'subject-to' && <div className="p-4 border-b border-gray-200">
+          {selectedTemplate && selectedTemplate._id === 'subject-to' && <div className="p-4 border-b border-gray-200">
               <h3 className="text-sm font-medium text-gray-700 mb-3">
                 Subject To Existing Mortgage Details
               </h3>
@@ -658,7 +984,7 @@ Sincerely,
               </div>
             </div>}
           {/* Hybrid Offer Terms - Only show for Hybrid template */}
-          {selectedTemplate.id === 'hybrid' && <div className="p-4 border-b border-gray-200">
+          {selectedTemplate && selectedTemplate._id === 'hybrid' && <div className="p-4 border-b border-gray-200">
               <h3 className="text-sm font-medium text-gray-700 mb-3">
                 Hybrid Financing Structure
               </h3>
@@ -807,249 +1133,258 @@ Sincerely,
           </div>
           <div className="p-6 bg-gray-50">
             <div ref={loiContentRef} className="bg-white border border-gray-200 rounded-xl p-8 shadow-sm max-w-4xl mx-auto">
-              <div className="border-b border-gray-200 pb-6 mb-6">
-                <div className="flex justify-between items-center">
-                  <img src="/AcquireFlow_Logo_%281%29.svg" alt="AcquireFlow.AI" className="h-10 object-contain" />
-                  <div className="text-right">
-                    <p className="text-sm font-medium">
-                      AcquireFlow Real Estate
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      123 Business Ave, Suite 200
-                    </p>
-                    <p className="text-xs text-gray-500">Orlando, FL 32801</p>
+              {/* Use template content if available, otherwise fall back to default */}
+              {selectedTemplate.content ? (
+                <div dangerouslySetInnerHTML={{ 
+                  __html: replacePlaceholders(selectedTemplate.content).replace(/\n/g, '<br />') 
+                }} />
+              ) : (
+                <>
+                  <div className="border-b border-gray-200 pb-6 mb-6">
+                    <div className="flex justify-between items-center">
+                      <img src="/AcquireFlow_Logo_%281%29.svg" alt="AcquireFlow.AI" className="h-10 object-contain" />
+                      <div className="text-right">
+                        <p className="text-sm font-medium">
+                          AcquireFlow Real Estate
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          123 Business Ave, Suite 200
+                        </p>
+                        <p className="text-xs text-gray-500">Orlando, FL 32801</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold mb-2">
-                  LETTER OF INTENT TO PURCHASE REAL ESTATE
-                </h1>
-                <p className="text-gray-500">
-                  {new Date().toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric'
-                })}
-                </p>
-              </div>
-              <div className="space-y-6">
-                <div>
-                  <p className="mb-3">
-                    <strong>Property Address:</strong>{' '}
-                    {selectedProperty.address}
-                  </p>
-                  <p className="mb-3">
-                    <strong>Recipient:</strong> {selectedProperty.agent}
-                  </p>
-                  <p className="mb-3">
-                    <strong>Agent Company:</strong>{' '}
-                    {selectedProperty.agentCompany}
-                  </p>
-                  <p className="mb-3">
-                    <strong>Subject:</strong> Letter of Intent to Purchase{' '}
-                    {selectedProperty.address}
-                  </p>
-                </div>
-                <div>
-                  <p className="mb-3">Dear {selectedProperty.agent},</p>
-                  <p className="mb-3">
-                    I am writing to express my interest in purchasing the
-                    property located at {selectedProperty.address}. After
-                    careful consideration of the property's location, condition,
-                    and potential, I would like to submit the following Letter
-                    of Intent:
-                  </p>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 mb-6">
-                  <p className="mb-3">
-                    <strong>Purchase Price:</strong>{' '}
-                    {formatCurrency(offerAmount)}
-                    {offerPercentage !== 100 && ` (${offerPercentage}% of asking price)`}
-                  </p>
-                  <p className="mb-3">
-                    <strong>Earnest Money Deposit:</strong>{' '}
-                    {formatCurrency(earnestMoneyAmount)} ({earnestMoney}% of
-                    offer)
-                  </p>
-                  <p className="mb-3">
-                    <strong>Closing Timeline:</strong> {closingTimeline} days
-                    from acceptance
-                  </p>
-                  <p className="mb-3">
-                    <strong>Inspection Period:</strong> {inspectionPeriod} days
-                  </p>
-                  {/* Standard Cash Offer Terms */}
-                  {selectedTemplate.id === 'standard-cash' && <>
+                  <div className="text-center mb-8">
+                    <h1 className="text-2xl font-bold mb-2">
+                      LETTER OF INTENT TO PURCHASE REAL ESTATE
+                    </h1>
+                    <p className="text-gray-500">
+                      {new Date().toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                    </p>
+                  </div>
+                  <div className="space-y-6">
+                    <div>
                       <p className="mb-3">
-                        <strong>Financing:</strong> Cash offer with no financing
-                        contingency
+                        <strong>Property Address:</strong>{' '}
+                        {selectedProperty.address}
                       </p>
                       <p className="mb-3">
-                        <strong>Proof of Funds:</strong> Available upon request
+                        <strong>Recipient:</strong> {selectedProperty.agent}
                       </p>
                       <p className="mb-3">
-                        <strong>Contingencies:</strong>{' '}
-                        {[subjectToOptions.inspection && 'Inspection', subjectToOptions.attorneyReview && 'Attorney Review', subjectToOptions.partnerApproval && 'Partner Approval', subjectToOptions.custom && subjectToOptions.custom].filter(Boolean).join(', ')}
-                      </p>
-                    </>}
-                  {/* Subject To Terms */}
-                  {selectedTemplate.id === 'subject-to' && <>
-                      <p className="mb-3">
-                        <strong>Contingencies:</strong>{' '}
-                        {[subjectToOptions.inspection && 'Inspection', subjectToOptions.appraisal && 'Appraisal', subjectToOptions.attorneyReview && 'Attorney Review', subjectToOptions.partnerApproval && 'Partner Approval', subjectToOptions.custom && subjectToOptions.custom].filter(Boolean).join(', ')}
+                        <strong>Agent Company:</strong>{' '}
+                        {selectedProperty.agentCompany}
                       </p>
                       <p className="mb-3">
-                        <strong>Subject To Existing Financing:</strong> This
-                        offer is made subject to the existing financing on the
-                        property. Buyer intends to take over the existing
-                        mortgage payments while keeping the loan in the Seller's
-                        name, with appropriate legal safeguards for both
-                        parties.
+                        <strong>Subject:</strong> Letter of Intent to Purchase{' '}
+                        {selectedProperty.address}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="mb-3">Dear {selectedProperty.agent},</p>
+                      <p className="mb-3">
+                        I am writing to express my interest in purchasing the
+                        property located at {selectedProperty.address}. After
+                        careful consideration of the property's location, condition,
+                        and potential, I would like to submit the following Letter
+                        of Intent:
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-5 mb-6">
+                      <p className="mb-3">
+                        <strong>Purchase Price:</strong>{' '}
+                        {formatCurrency(offerAmount)}
+                        {offerPercentage !== 100 && ` (${offerPercentage}% of asking price)`}
                       </p>
                       <p className="mb-3">
-                        <strong>Estimated Mortgage Balance:</strong>{' '}
-                        {formatCurrency(Math.round(selectedProperty.price * 0.7))}
+                        <strong>Earnest Money Deposit:</strong>{' '}
+                        {formatCurrency(earnestMoneyAmount)} ({earnestMoney}% of
+                        offer)
                       </p>
                       <p className="mb-3">
-                        <strong>Cash to Seller at Closing:</strong>{' '}
-                        {formatCurrency(Math.round(offerAmount - selectedProperty.price * 0.7))}
-                      </p>
-                    </>}
-                  {/* Seller Financing Terms */}
-                  {selectedTemplate.id === 'seller-financing' && <>
-                      <p className="mb-3">
-                        <strong>Contingencies:</strong>{' '}
-                        {[subjectToOptions.inspection && 'Inspection', subjectToOptions.appraisal && 'Appraisal', subjectToOptions.attorneyReview && 'Attorney Review', subjectToOptions.partnerApproval && 'Partner Approval', subjectToOptions.custom && subjectToOptions.custom].filter(Boolean).join(', ')}
+                        <strong>Closing Timeline:</strong> {closingTimeline} days
+                        from acceptance
                       </p>
                       <p className="mb-3">
-                        <strong>Seller Financing Terms:</strong>
+                        <strong>Inspection Period:</strong> {inspectionPeriod} days
                       </p>
-                      <ul className="list-disc pl-5 mb-3 space-y-1">
-                        <li>
-                          Down Payment:{' '}
-                          {formatCurrency(offerAmount * (sellerFinancingTerms.downPayment / 100))}{' '}
-                          ({sellerFinancingTerms.downPayment}%)
-                        </li>
-                        <li>
-                          Financed Amount:{' '}
-                          {formatCurrency(offerAmount * (1 - sellerFinancingTerms.downPayment / 100))}
-                        </li>
-                        <li>
-                          Interest Rate: {sellerFinancingTerms.interestRate}%
-                        </li>
-                        <li>
-                          Loan Term: {sellerFinancingTerms.loanTerm} years
-                        </li>
-                        <li>
-                          Monthly Payment: {formatCurrency(monthlyPayment)}
-                        </li>
-                        {sellerFinancingTerms.balloonPayment && <li>
-                            Balloon Payment: Due after{' '}
-                            {sellerFinancingTerms.balloonTerm} years
-                          </li>}
-                      </ul>
-                    </>}
-                  {/* Hybrid Terms */}
-                  {selectedTemplate.id === 'hybrid' && <>
-                      <p className="mb-3">
-                        <strong>Contingencies:</strong>{' '}
-                        {[subjectToOptions.inspection && 'Inspection', subjectToOptions.appraisal && 'Appraisal', subjectToOptions.attorneyReview && 'Attorney Review', subjectToOptions.partnerApproval && 'Partner Approval', subjectToOptions.custom && subjectToOptions.custom].filter(Boolean).join(', ')}
-                      </p>
-                      <p className="mb-3">
-                        <strong>Hybrid Financing Structure:</strong>
-                      </p>
-                      <ul className="list-disc pl-5 mb-3 space-y-1">
-                        <li>
-                          Assumption of Existing Mortgage:{' '}
-                          {formatCurrency(hybridFinancingTerms.assumedLoanBalance)}
-                        </li>
-                        <li>
-                          Seller Financing:{' '}
-                          {formatCurrency(hybridFinancingTerms.sellerFinanceAmount)}
-                          <ul className="list-circle pl-5 mt-1 space-y-1 text-sm">
+                      {/* Standard Cash Offer Terms */}
+                      {selectedTemplate._id === 'standard-cash' && <>
+                          <p className="mb-3">
+                            <strong>Financing:</strong> Cash offer with no financing
+                            contingency
+                          </p>
+                          <p className="mb-3">
+                            <strong>Proof of Funds:</strong> Available upon request
+                          </p>
+                          <p className="mb-3">
+                            <strong>Contingencies:</strong>{' '}
+                            {[subjectToOptions.inspection && 'Inspection', subjectToOptions.attorneyReview && 'Attorney Review', subjectToOptions.partnerApproval && 'Partner Approval', subjectToOptions.custom && subjectToOptions.custom].filter(Boolean).join(', ')}
+                          </p>
+                        </>}
+                      {/* Subject To Terms */}
+                      {selectedTemplate._id === 'subject-to' && <>
+                          <p className="mb-3">
+                            <strong>Contingencies:</strong>{' '}
+                            {[subjectToOptions.inspection && 'Inspection', subjectToOptions.appraisal && 'Appraisal', subjectToOptions.attorneyReview && 'Attorney Review', subjectToOptions.partnerApproval && 'Partner Approval', subjectToOptions.custom && subjectToOptions.custom].filter(Boolean).join(', ')}
+                          </p>
+                          <p className="mb-3">
+                            <strong>Subject To Existing Financing:</strong> This
+                            offer is made subject to the existing financing on the
+                            property. Buyer intends to take over the existing
+                            mortgage payments while keeping the loan in the Seller's
+                            name, with appropriate legal safeguards for both
+                            parties.
+                          </p>
+                          <p className="mb-3">
+                            <strong>Estimated Mortgage Balance:</strong>{' '}
+                            {formatCurrency(Math.round(selectedProperty.price * 0.7))}
+                          </p>
+                          <p className="mb-3">
+                            <strong>Cash to Seller at Closing:</strong>{' '}
+                            {formatCurrency(Math.round(offerAmount - selectedProperty.price * 0.7))}
+                          </p>
+                        </>}
+                      {/* Seller Financing Terms */}
+                      {selectedTemplate._id === 'seller-financing' && <>
+                          <p className="mb-3">
+                            <strong>Contingencies:</strong>{' '}
+                            {[subjectToOptions.inspection && 'Inspection', subjectToOptions.appraisal && 'Appraisal', subjectToOptions.attorneyReview && 'Attorney Review', subjectToOptions.partnerApproval && 'Partner Approval', subjectToOptions.custom && subjectToOptions.custom].filter(Boolean).join(', ')}
+                          </p>
+                          <p className="mb-3">
+                            <strong>Seller Financing Terms:</strong>
+                          </p>
+                          <ul className="list-disc pl-5 mb-3 space-y-1">
                             <li>
-                              Interest Rate: {hybridFinancingTerms.interestRate}
-                              %
+                              Down Payment:{' '}
+                              {formatCurrency(offerAmount * (sellerFinancingTerms.downPayment / 100))}{' '}
+                              ({sellerFinancingTerms.downPayment}%)
                             </li>
-                            <li>Term: {hybridFinancingTerms.loanTerm} years</li>
-                            {hybridFinancingTerms.balloonPayment && <li>
+                            <li>
+                              Financed Amount:{' '}
+                              {formatCurrency(offerAmount * (1 - sellerFinancingTerms.downPayment / 100))}
+                            </li>
+                            <li>
+                              Interest Rate: {sellerFinancingTerms.interestRate}%
+                            </li>
+                            <li>
+                              Loan Term: {sellerFinancingTerms.loanTerm} years
+                            </li>
+                            <li>
+                              Monthly Payment: {formatCurrency(monthlyPayment)}
+                            </li>
+                            {sellerFinancingTerms.balloonPayment && <li>
                                 Balloon Payment: Due after{' '}
-                                {hybridFinancingTerms.balloonTerm} years
+                                {sellerFinancingTerms.balloonTerm} years
                               </li>}
                           </ul>
-                        </li>
-                        <li>
-                          Cash Down Payment:{' '}
-                          {formatCurrency(hybridFinancingTerms.downPayment)}
-                        </li>
-                      </ul>
-                    </>}
-                </div>
-                <div>
-                  {/* Standard Cash Offer specific language */}
-                  {selectedTemplate.id === 'standard-cash' && <p className="mb-3">
-                      I am prepared to move forward quickly with this cash offer
-                      and can provide proof of funds immediately upon request.
-                      With no financing contingency, we can close in as little
-                      as {closingTimeline} days, providing you with certainty
-                      and a clean, efficient transaction.
-                    </p>}
-                  {/* Subject To specific language */}
-                  {selectedTemplate.id === 'subject-to' && <p className="mb-3">
-                      This "Subject-To" offer allows you to sell your property
-                      without paying off your existing mortgage. I will take
-                      over the responsibility of making the mortgage payments
-                      while you receive the difference between your mortgage
-                      balance and the purchase price in cash at closing. This
-                      approach can be beneficial if you need to sell quickly
-                      without waiting for traditional financing approval.
-                    </p>}
-                  {/* Seller Financing specific language */}
-                  {selectedTemplate.id === 'seller-financing' && <p className="mb-3">
-                      The seller financing structure outlined above provides you
-                      with an immediate down payment plus ongoing monthly income
-                      at an attractive interest rate. This arrangement can offer
-                      tax advantages by spreading your capital gains over time
-                      while providing a competitive return on your equity. All
-                      terms will be secured with a promissory note and
-                      mortgage/deed of trust on the property.
-                    </p>}
-                  {/* Hybrid specific language */}
-                  {selectedTemplate.id === 'hybrid' && <p className="mb-3">
-                      This hybrid structure combines the benefits of a
-                      Subject-To transaction with seller financing. You'll
-                      receive an immediate cash payment while also creating
-                      ongoing monthly income from the seller-financed portion.
-                      This creative approach maximizes flexibility for both
-                      parties while allowing for a faster closing than
-                      traditional financing would permit.
-                    </p>}
-                  <p className="mb-3">
-                    My team and I have extensive experience in real estate
-                    acquisitions in this area and are committed to a smooth
-                    transaction process. I understand the unique considerations
-                    involved in this type of transaction and will ensure all
-                    necessary documentation is handled professionally.
-                  </p>
-                  <p className="mb-3">
-                    Please consider this a formal expression of my interest in
-                    the property. I look forward to your response and am
-                    available to discuss any aspects of this offer at your
-                    convenience.
-                  </p>
-                  <p className="mb-5">Sincerely,</p>
-                  <p>
-                    [Your Name]
-                    <br />
-                    AcquireFlow Real Estate
-                    <br />
-                    (555) 123-4567
-                    <br />
-                    investor@acquireflow.com
-                  </p>
-                </div>
-              </div>
+                        </>}
+                      {/* Hybrid Terms */}
+                      {selectedTemplate._id === 'hybrid' && <>
+                          <p className="mb-3">
+                            <strong>Contingencies:</strong>{' '}
+                            {[subjectToOptions.inspection && 'Inspection', subjectToOptions.appraisal && 'Appraisal', subjectToOptions.attorneyReview && 'Attorney Review', subjectToOptions.partnerApproval && 'Partner Approval', subjectToOptions.custom && subjectToOptions.custom].filter(Boolean).join(', ')}
+                          </p>
+                          <p className="mb-3">
+                            <strong>Hybrid Financing Structure:</strong>
+                          </p>
+                          <ul className="list-disc pl-5 mb-3 space-y-1">
+                            <li>
+                              Assumption of Existing Mortgage:{' '}
+                              {formatCurrency(hybridFinancingTerms.assumedLoanBalance)}
+                            </li>
+                            <li>
+                              Seller Financing:{' '}
+                              {formatCurrency(hybridFinancingTerms.sellerFinanceAmount)}
+                              <ul className="list-circle pl-5 mt-1 space-y-1 text-sm">
+                                <li>
+                                  Interest Rate: {hybridFinancingTerms.interestRate}
+                                  %
+                                </li>
+                                <li>Term: {hybridFinancingTerms.loanTerm} years</li>
+                                {hybridFinancingTerms.balloonPayment && <li>
+                                    Balloon Payment: Due after{' '}
+                                    {hybridFinancingTerms.balloonTerm} years
+                                  </li>}
+                              </ul>
+                            </li>
+                            <li>
+                              Cash Down Payment:{' '}
+                              {formatCurrency(hybridFinancingTerms.downPayment)}
+                            </li>
+                          </ul>
+                        </>}
+                    </div>
+                    <div>
+                      {/* Standard Cash Offer specific language */}
+                      {selectedTemplate._id === 'standard-cash' && <p className="mb-3">
+                          I am prepared to move forward quickly with this cash offer
+                          and can provide proof of funds immediately upon request.
+                          With no financing contingency, we can close in as little
+                          as {closingTimeline} days, providing you with certainty
+                          and a clean, efficient transaction.
+                        </p>}
+                      {/* Subject To specific language */}
+                      {selectedTemplate._id === 'subject-to' && <p className="mb-3">
+                          This "Subject-To" offer allows you to sell your property
+                          without paying off your existing mortgage. I will take
+                          over the responsibility of making the mortgage payments
+                          while you receive the difference between your mortgage
+                          balance and the purchase price in cash at closing. This
+                          approach can be beneficial if you need to sell quickly
+                          without waiting for traditional financing approval.
+                        </p>}
+                      {/* Seller Financing specific language */}
+                      {selectedTemplate._id === 'seller-financing' && <p className="mb-3">
+                          The seller financing structure outlined above provides you
+                          with an immediate down payment plus ongoing monthly income
+                          at an attractive interest rate. This arrangement can offer
+                          tax advantages by spreading your capital gains over time
+                          while providing a competitive return on your equity. All
+                          terms will be secured with a promissory note and
+                          mortgage/deed of trust on the property.
+                        </p>}
+                      {/* Hybrid specific language */}
+                      {selectedTemplate._id === 'hybrid' && <p className="mb-3">
+                          This hybrid structure combines the benefits of a
+                          Subject-To transaction with seller financing. You'll
+                          receive an immediate cash payment while also creating
+                          ongoing monthly income from the seller-financed portion.
+                          This creative approach maximizes flexibility for both
+                          parties while allowing for a faster closing than
+                          traditional financing would permit.
+                        </p>}
+                      <p className="mb-3">
+                        My team and I have extensive experience in real estate
+                        acquisitions in this area and are committed to a smooth
+                        transaction process. I understand the unique considerations
+                        involved in this type of transaction and will ensure all
+                        necessary documentation is handled professionally.
+                      </p>
+                      <p className="mb-3">
+                        Please consider this a formal expression of my interest in
+                        the property. I look forward to your response and am
+                        available to discuss any aspects of this offer at your
+                        convenience.
+                      </p>
+                      <p className="mb-5">Sincerely,</p>
+                      <p>
+                        [Your Name]
+                        <br />
+                        AcquireFlow Real Estate
+                        <br />
+                        (555) 123-4567
+                        <br />
+                        investor@acquireflow.com
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
           <div className="px-5 py-4 border-t border-gray-200 flex justify-between items-center">
