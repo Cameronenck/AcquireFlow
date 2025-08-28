@@ -1,7 +1,9 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import { IProfile } from '../types/profile';
 
-export interface IProfileDocument extends IProfile, Document {}
+export interface IProfileDocument extends Omit<IProfile, '_id'>, Document {
+  _id: string;
+}
 
 const companyAddressSchema = new Schema({
   addressLine1: {
@@ -133,8 +135,7 @@ const contactPreferencesSchema = new Schema({
 
 const profileSchema = new Schema<IProfileDocument>({
   userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     required: true,
     unique: true,
   },
@@ -192,14 +193,13 @@ profileSchema.index({ userId: 1 });
 profileSchema.index({ 'companyInfo.companyName': 1 });
 profileSchema.index({ createdAt: -1 });
 
-// Static method to find by userId
-profileSchema.statics.findByUserId = function(userId: string) {
+// Static methods
+profileSchema.statics['findByUserId'] = function(userId: string) {
   return this.findOne({ userId });
 };
 
-// Static method to find profiles with company info
-profileSchema.statics.findWithCompanyInfo = function() {
-  return this.find({ 'companyInfo.companyName': { $exists: true } });
+profileSchema.statics['findWithCompanyInfo'] = function() {
+  return this.find().populate('company');
 };
 
 export const Profile = mongoose.model<IProfileDocument>('Profile', profileSchema);

@@ -403,7 +403,7 @@ export class AuthController {
    * Test email connection
    * GET /api/auth/test-email
    */
-  static async testEmailConnection(req: Request, res: Response): Promise<void> {
+  static async testEmailConnection(_req: Request, res: Response): Promise<void> {
     try {
       const isConnected = await EmailService.testConnection();
       

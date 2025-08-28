@@ -93,21 +93,29 @@ export class LOITemplateController {
   }
 
   /**
-   * Get a specific template by ID
-   * GET /api/v1/loi-templates/:id
+   * Get template by ID
+   * GET /api/loi-templates/:id
    */
   static async getTemplateById(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
-      if (!userId) {
-        res.status(401).json({
+      const id = req.params['id'];
+      if (!id) {
+        res.status(400).json({
           success: false,
-          message: 'Unauthorized',
+          message: 'Template ID is required',
         });
         return;
       }
 
-      const { id } = req.params;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated',
+        });
+        return;
+      }
+
       const template = await LOITemplateService.getTemplateById(id, userId);
 
       if (!template) {
@@ -120,16 +128,14 @@ export class LOITemplateController {
 
       res.status(200).json({
         success: true,
-        message: 'Template retrieved successfully',
         data: template,
       });
     } catch (error) {
-      logger.error('Get template by ID failed', { 
+      logger.error('Failed to get template by ID', { 
         error: (error as any).message, 
-        userId: (req as any).user?.id,
-        templateId: req.params.id
+        templateId: req.params['id']
       });
-
+      
       res.status(500).json({
         success: false,
         message: 'Internal server error',
@@ -138,45 +144,44 @@ export class LOITemplateController {
   }
 
   /**
-   * Update an existing template
-   * PUT /api/v1/loi-templates/:id
+   * Update template
+   * PUT /api/loi-templates/:id
    */
   static async updateTemplate(req: Request, res: Response): Promise<void> {
     try {
+      const id = req.params['id'];
+      if (!id) {
+        res.status(400).json({
+          success: false,
+          message: 'Template ID is required',
+        });
+        return;
+      }
+
       const userId = (req as any).user?.id;
       if (!userId) {
         res.status(401).json({
           success: false,
-          message: 'Unauthorized',
+          message: 'User not authenticated',
         });
         return;
       }
 
-      const { id } = req.params;
-      const { name, description, content, icon, category, tags } = req.body;
-
-      // Validate required fields
-      if (!name || !description || !content) {
+      const updateData = req.body;
+      if (!updateData || Object.keys(updateData).length === 0) {
         res.status(400).json({
           success: false,
-          message: 'Missing required fields: name, description, and content are required',
+          message: 'Update data is required',
         });
         return;
       }
 
-      const updatedTemplate = await LOITemplateService.updateTemplate(id, userId, {
-        name,
-        description,
-        content,
-        icon,
-        category,
-        tags
-      });
+      const updatedTemplate = await LOITemplateService.updateTemplate(id, userId, updateData);
 
       if (!updatedTemplate) {
         res.status(404).json({
           success: false,
-          message: 'Template not found or not editable',
+          message: 'Template not found or access denied',
         });
         return;
       }
@@ -187,12 +192,12 @@ export class LOITemplateController {
         data: updatedTemplate,
       });
     } catch (error) {
-      logger.error('Update template failed', { 
+      logger.error('Failed to update template', { 
         error: (error as any).message, 
         userId: (req as any).user?.id,
-        templateId: req.params.id
+        templateId: req.params['id']
       });
-
+      
       res.status(500).json({
         success: false,
         message: 'Internal server error',
@@ -201,27 +206,35 @@ export class LOITemplateController {
   }
 
   /**
-   * Delete a template
-   * DELETE /api/v1/loi-templates/:id
+   * Delete template
+   * DELETE /api/loi-templates/:id
    */
   static async deleteTemplate(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
-      if (!userId) {
-        res.status(401).json({
+      const id = req.params['id'];
+      if (!id) {
+        res.status(400).json({
           success: false,
-          message: 'Unauthorized',
+          message: 'Template ID is required',
         });
         return;
       }
 
-      const { id } = req.params;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated',
+        });
+        return;
+      }
+
       const deleted = await LOITemplateService.deleteTemplate(id, userId);
 
       if (!deleted) {
         res.status(404).json({
           success: false,
-          message: 'Template not found or not deletable',
+          message: 'Template not found or access denied',
         });
         return;
       }
@@ -231,12 +244,12 @@ export class LOITemplateController {
         message: 'Template deleted successfully',
       });
     } catch (error) {
-      logger.error('Delete template failed', { 
+      logger.error('Failed to delete template', { 
         error: (error as any).message, 
         userId: (req as any).user?.id,
-        templateId: req.params.id
+        templateId: req.params['id']
       });
-
+      
       res.status(500).json({
         success: false,
         message: 'Internal server error',
@@ -245,27 +258,35 @@ export class LOITemplateController {
   }
 
   /**
-   * Duplicate a template
-   * POST /api/v1/loi-templates/:id/duplicate
+   * Duplicate template
+   * POST /api/loi-templates/:id/duplicate
    */
   static async duplicateTemplate(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
-      if (!userId) {
-        res.status(401).json({
+      const id = req.params['id'];
+      if (!id) {
+        res.status(400).json({
           success: false,
-          message: 'Unauthorized',
+          message: 'Template ID is required',
         });
         return;
       }
 
-      const { id } = req.params;
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated',
+        });
+        return;
+      }
+
       const duplicatedTemplate = await LOITemplateService.duplicateTemplate(id, userId);
 
       if (!duplicatedTemplate) {
         res.status(404).json({
           success: false,
-          message: 'Template not found',
+          message: 'Template not found or access denied',
         });
         return;
       }
@@ -276,12 +297,12 @@ export class LOITemplateController {
         data: duplicatedTemplate,
       });
     } catch (error) {
-      logger.error('Duplicate template failed', { 
+      logger.error('Failed to duplicate template', { 
         error: (error as any).message, 
         userId: (req as any).user?.id,
-        templateId: req.params.id
+        templateId: req.params['id']
       });
-
+      
       res.status(500).json({
         success: false,
         message: 'Internal server error',
@@ -324,7 +345,7 @@ export class LOITemplateController {
       logger.error('Search templates failed', { 
         error: (error as any).message, 
         userId: (req as any).user?.id,
-        searchQuery: req.query.q
+        searchQuery: req.query['q']
       });
 
       res.status(500).json({

@@ -65,7 +65,7 @@ export class ProfileService {
 
       // Format login activities
       const formattedLoginActivities = loginActivities.map(activity => ({
-        id: activity._id.toString(),
+        id: (activity._id as any).toString(),
         deviceInfo: {
           browser: activity.deviceInfo.browser,
           os: activity.deviceInfo.os,
@@ -80,7 +80,7 @@ export class ProfileService {
       if (!profile) {
         return {
           user: {
-            _id: user._id.toString(),
+            _id: (user._id as any).toString(),
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
@@ -91,9 +91,9 @@ export class ProfileService {
             isEmailVerified: user.isEmailVerified,
             isPhoneVerified: user.isPhoneVerified,
             lastLoginAt: user.lastLoginAt || undefined,
-            createdAt: user.createdAt || undefined,
-            updatedAt: user.updatedAt || undefined,
-          },
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+          } as any,
           profile: null as any,
           recentLoginActivity: formattedLoginActivities,
         };
@@ -101,7 +101,7 @@ export class ProfileService {
 
       return {
         user: {
-          _id: user._id.toString(),
+          _id: (user._id as any).toString(),
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
@@ -112,9 +112,9 @@ export class ProfileService {
           isEmailVerified: user.isEmailVerified,
           isPhoneVerified: user.isPhoneVerified,
           lastLoginAt: user.lastLoginAt || undefined,
-          createdAt: user.createdAt || undefined,
-          updatedAt: user.updatedAt || undefined,
-        },
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        } as any,
         profile: this.formatProfileResponse(profile),
         recentLoginActivity: formattedLoginActivities,
       };

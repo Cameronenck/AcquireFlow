@@ -3,14 +3,16 @@
   "version": "1.0.0",
   "description": "Backend API for AcquireFlow - Real Estate Lead Generation Platform",
   "main": "dist/server.js",
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "test": "jest",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
-  },
+"scripts": {
+  "build": "tsc",
+  "start": "node dist/server.js",
+  "start:dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+  "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+  "test": "jest",
+  "lint": "eslint src/**/*.ts",
+  "lint:fix": "eslint src/**/*.ts --fix"
+}
+,
   "keywords": [
     "real-estate",
     "lead-generation",

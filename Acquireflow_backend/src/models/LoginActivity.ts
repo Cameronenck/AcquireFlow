@@ -104,9 +104,9 @@ loginActivitySchema.statics['getActiveSessions'] = function(userId: string) {
 
 // Instance method to mark session as inactive
 loginActivitySchema.methods['logout'] = function() {
-  this.isActive = false;
-  this.logoutAt = new Date();
-  return this.save();
+  this['isActive'] = false;
+  this['logoutAt'] = new Date();
+  return this['save']();
 };
 
 export const LoginActivity = mongoose.model<ILoginActivityDocument>('LoginActivity', loginActivitySchema);

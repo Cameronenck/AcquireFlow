@@ -350,14 +350,21 @@ Sincerely,
       const searchRegex = new RegExp(searchTerm, 'i');
       
       const templates = await LOITemplate.find({
-        $or: [
-          { userId },
-          { isDefault: true }
-        ],
-        $or: [
-          { name: searchRegex },
-          { description: searchRegex },
-          { tags: searchRegex }
+        $and: [
+          {
+            $or: [
+              { userId },
+              { isDefault: true }
+            ]
+          },
+          {
+            $or: [
+              { name: searchRegex },
+              { description: searchRegex },
+              { content: searchRegex },
+              { tags: searchRegex }
+            ]
+          }
         ]
       }).sort({ isDefault: 1, createdAt: -1 });
 

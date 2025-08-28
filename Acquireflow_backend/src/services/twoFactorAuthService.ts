@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import { TwoFactorAuth, OTPCode } from '../models/TwoFactorAuth';
 import { EmailService } from './emailService';
 import { logger } from '../utils/logger';
@@ -256,8 +255,8 @@ export class TwoFactorAuthService {
 
       return {
         isEnabled: twoFactorAuth.isEnabled,
-        lastUsedAt: twoFactorAuth.lastUsedAt,
-      };
+        lastUsedAt: twoFactorAuth.lastUsedAt || undefined,
+      } as any;
     } catch (error) {
       logger.error(`Error getting 2FA status for user ${userId}:`, error);
       throw error;
