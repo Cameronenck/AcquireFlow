@@ -97,6 +97,11 @@ export const AccountInformation = () => {
     loadProfileData();
   }, [user]);
   
+  // Debug: Monitor form data changes
+  useEffect(() => {
+    console.log('Form Data Updated:', formData);
+  }, [formData]);
+  
   const loadProfileData = async () => {
     try {
       setIsLoading(true);
@@ -104,37 +109,48 @@ export const AccountInformation = () => {
       
       const completeProfile = await profileService.getCompleteProfile();
       
-      if (completeProfile.user) {
+      // Debug: Log the complete profile data
+      console.log('Complete Profile Data:', completeProfile);
+      
+      if (completeProfile.data?.user) {
         setUserData({
-          firstName: completeProfile.user.firstName || '',
-          lastName: completeProfile.user.lastName || '',
-          email: completeProfile.user.email || '',
-          phoneNumber: completeProfile.user.phoneNumber || ''
+          firstName: completeProfile.data.user.firstName || '',
+          lastName: completeProfile.data.user.lastName || '',
+          email: completeProfile.data.user.email || '',
+          phoneNumber: completeProfile.data.user.phoneNumber || ''
         });
+      } else {
+        // Debug: Log what we have in completeProfile
+        console.log('No user data found, completeProfile keys:', Object.keys(completeProfile));
+        console.log('Data keys:', completeProfile.data ? Object.keys(completeProfile.data) : 'No data');
       }
       
-      if (completeProfile.profile) {
-        const profile = completeProfile.profile;
+      if (completeProfile.data?.profile) {
+        const profile = completeProfile.data.profile;
+        
+        // Debug: Log the profile data structure
+        console.log('Profile Data Structure:', profile);
+        
         setFormData(prev => ({
           ...prev,
           profileImage: profile.profileImage || prev.profileImage,
           jobTitle: profile.jobTitle || prev.jobTitle,
           preferredLanguage: profile.preferredLanguage || prev.preferredLanguage,
-          companyInfo: profile.companyInfo ? {
-            companyName: profile.companyInfo.companyName || prev.companyInfo?.companyName || '',
-            businessType: profile.companyInfo.businessType || prev.companyInfo?.businessType || '',
-            companyWebsite: profile.companyInfo.companyWebsite || prev.companyInfo?.companyWebsite || '',
-            companySize: profile.companyInfo.companySize || prev.companyInfo?.companySize || '1-10 employees',
+          companyInfo: {
+            companyName: profile.companyInfo?.companyName || (profile as any).companyName || prev.companyInfo?.companyName || '',
+            businessType: profile.companyInfo?.businessType || prev.companyInfo?.businessType || '',
+            companyWebsite: profile.companyInfo?.companyWebsite || (profile as any).companyWebsite || prev.companyInfo?.companyWebsite || '',
+            companySize: profile.companyInfo?.companySize || (profile as any).companySize || prev.companyInfo?.companySize || '1-10 employees',
             companyAddress: {
-              addressLine1: profile.companyInfo.companyAddress.addressLine1 || prev.companyInfo?.companyAddress?.addressLine1 || '',
-              addressLine2: profile.companyInfo.companyAddress.addressLine2 || prev.companyInfo?.companyAddress?.addressLine2 || '',
-              city: profile.companyInfo.companyAddress.city || prev.companyInfo?.companyAddress?.city || '',
-              state: profile.companyInfo.companyAddress.state || prev.companyInfo?.companyAddress?.state || '',
-              zipCode: profile.companyInfo.companyAddress.zipCode || prev.companyInfo?.companyAddress?.zipCode || '',
-              country: profile.companyInfo.companyAddress.country || prev.companyInfo?.companyAddress?.country || 'United States'
+              addressLine1: profile.companyInfo?.companyAddress?.addressLine1 || (profile as any).companyAddress?.addressLine1 || prev.companyInfo?.companyAddress?.addressLine1 || '',
+              addressLine2: profile.companyInfo?.companyAddress?.addressLine2 || (profile as any).companyAddress?.addressLine2 || prev.companyInfo?.companyAddress?.addressLine2 || '',
+              city: profile.companyInfo?.companyAddress?.city || (profile as any).companyAddress?.city || prev.companyInfo?.companyAddress?.city || '',
+              state: profile.companyInfo?.companyAddress?.state || (profile as any).companyAddress?.state || prev.companyInfo?.companyAddress?.state || '',
+              zipCode: profile.companyInfo?.companyAddress?.zipCode || (profile as any).companyAddress?.zipCode || prev.companyInfo?.companyAddress?.zipCode || '',
+              country: profile.companyInfo?.companyAddress?.country || (profile as any).companyAddress?.country || prev.companyInfo?.companyAddress?.country || 'United States'
             },
-            companyLogo: profile.companyInfo.companyLogo || prev.companyInfo?.companyLogo || ''
-          } : prev.companyInfo,
+            companyLogo: profile.companyInfo?.companyLogo || prev.companyInfo?.companyLogo || ''
+          },
           localization: profile.localization ? {
             timezone: profile.localization.timezone || prev.localization?.timezone || 'Eastern Time (ET)',
             dateFormat: profile.localization.dateFormat || prev.localization?.dateFormat || 'MM/DD/YYYY',
@@ -148,8 +164,8 @@ export const AccountInformation = () => {
         }));
         
         // Update profile image if exists
-        if (completeProfile.profile.profileImage) {
-          setProfileImage(completeProfile.profile.profileImage);
+        if (completeProfile.data.profile.profileImage) {
+          setProfileImage(completeProfile.data.profile.profileImage);
         }
       }
     } catch (err: any) {
@@ -334,6 +350,7 @@ export const AccountInformation = () => {
                     className="w-full p-2 border border-gray-300 rounded-lg" 
                     value={userData.phoneNumber}
                     onChange={(e) => setUserData(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                    placeholder="Enter phone number"
                   />
                 </div>
                 <div>
@@ -346,6 +363,10 @@ export const AccountInformation = () => {
                     value={formData.jobTitle || ''}
                     onChange={(e) => handleInputChange('jobTitle', e.target.value)}
                   />
+                  {/* Debug: Show current value */}
+                  <div className="text-xs text-gray-500 mt-1">
+                    Current value: "{formData.jobTitle || 'empty'}"
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -364,6 +385,10 @@ export const AccountInformation = () => {
                     <option value="Chinese">Chinese</option>
                     <option value="Japanese">Japanese</option>
                   </select>
+                  {/* Debug: Show current value */}
+                  <div className="text-xs text-gray-500 mt-1">
+                    Current value: "{formData.preferredLanguage || 'empty'}"
+                  </div>
                 </div>
               </div>
             </div>
@@ -387,6 +412,10 @@ export const AccountInformation = () => {
                 value={formData.companyInfo?.companyName || ''}
                 onChange={(e) => handleInputChange('companyInfo', e.target.value, 'companyName')}
               />
+              {/* Debug: Show current value */}
+              <div className="text-xs text-gray-500 mt-1">
+                Current value: "{formData.companyInfo?.companyName || 'empty'}"
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -404,6 +433,10 @@ export const AccountInformation = () => {
                 <option value="Wholesaling">Wholesaling</option>
                 <option value="Other">Other</option>
               </select>
+              {/* Debug: Show current value */}
+              <div className="text-xs text-gray-500 mt-1">
+                Current value: "{formData.companyInfo?.businessType || 'empty'}"
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -418,6 +451,10 @@ export const AccountInformation = () => {
                   onChange={(e) => handleInputChange('companyInfo', e.target.value, 'companyWebsite')}
                   placeholder="https://example.com"
                 />
+              </div>
+              {/* Debug: Show current value */}
+              <div className="text-xs text-gray-500 mt-1">
+                Current value: "{formData.companyInfo?.companyWebsite || 'empty'}"
               </div>
             </div>
             <div>
@@ -435,6 +472,10 @@ export const AccountInformation = () => {
                 <option value="201-500 employees">201-500 employees</option>
                 <option value="500+ employees">500+ employees</option>
               </select>
+              {/* Debug: Show current value */}
+              <div className="text-xs text-gray-500 mt-1">
+                Current value: "{formData.companyInfo?.companySize || 'empty'}"
+              </div>
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -525,9 +566,13 @@ export const AccountInformation = () => {
                 <option value="Hawaii Time (HST)">Hawaii Time (HST)</option>
                 <option value="UTC">UTC</option>
               </select>
+              {/* Debug: Show current value */}
+              <div className="text-xs text-gray-500 mt-1">
+                Current value: "{formData.localization?.timezone || 'empty'}"
+              </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="text-sm font-medium text-gray-700 mb-1">
                 Date Format
               </label>
               <select 
@@ -539,6 +584,10 @@ export const AccountInformation = () => {
                 <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                 <option value="YYYY-MM-DD">YYYY-MM-DD</option>
               </select>
+              {/* Debug: Show current value */}
+              <div className="text-xs text-gray-500 mt-1">
+                Current value: "{formData.localization?.dateFormat || 'empty'}"
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -555,6 +604,10 @@ export const AccountInformation = () => {
                 <option value="Canadian Dollar (C$)">Canadian Dollar (C$)</option>
                 <option value="Australian Dollar (A$)">Australian Dollar (A$)</option>
               </select>
+              {/* Debug: Show current value */}
+              <div className="text-xs text-gray-500 mt-1">
+                Current value: "{formData.localization?.currency || 'empty'}"
+              </div>
             </div>
           </div>
           <div className="mt-6">
@@ -579,6 +632,10 @@ export const AccountInformation = () => {
                   </span>
                 </span>
               </label>
+              {/* Debug: Show current value */}
+              <div className="text-xs text-gray-500 ml-6">
+                Current value: {formData.contactPreferences?.marketingCommunications ? 'true' : 'false'}
+              </div>
               <label className="flex items-start">
                 <input 
                   type="checkbox" 
