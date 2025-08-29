@@ -1,6 +1,6 @@
 import type { LoginActivity } from '../types/loginActivity';
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api/v1';
 
 export const loginActivityService = {
   async getRecentActivity(accessToken: string, limit: number = 10): Promise<LoginActivity[]> {

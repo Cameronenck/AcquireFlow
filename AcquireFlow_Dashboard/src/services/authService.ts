@@ -1,6 +1,6 @@
 import type { AuthUser } from '../store/slices/auth/types';
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api';
+const API_BASE = `${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api/v1'}`;
 
 type BackendAuthResponse = {
   success: boolean;
@@ -33,7 +33,7 @@ export const authService = {
     expiresIn: number;
     user: AuthUser;
   }> {
-    const res = await fetch(`${API_BASE}/v1/auth/login`, {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -53,7 +53,7 @@ export const authService = {
   },
 
   async forgotPassword(email: string): Promise<void> {
-    const res = await fetch(`${API_BASE}/v1/auth/forgot-password`, {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -97,7 +97,7 @@ export const authService = {
     expiresIn: number;
     user: AuthUser;
   }> {
-    const res = await fetch(`${API_BASE}/v1/auth/register`, {
+    const res = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params)

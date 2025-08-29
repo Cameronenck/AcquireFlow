@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<{
   // Function to refresh access token
   const refreshAccessToken = async (refreshToken: string): Promise<string | null> => {
     try {
-      const response = await fetch(`${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000'}/api/v1/auth/refresh`, {
+      const response = await fetch(`https://acquireflow-backend.onrender.com/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -91,9 +91,9 @@ export const AuthProvider: React.FC<{
           const userData = JSON.parse(storedUserData);
           console.log('✅ Found stored tokens, validating token...');
           
-          // Validate the token by making a simple API call
-          try {
-            const response = await fetch(`${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000'}/api/v1/profile/complete`, {
+                      // Validate the token by making a simple API call
+            try {
+              const response = await fetch(`https://acquireflow-backend.onrender.com/profile/complete`, {
               headers: {
                 'Authorization': `Bearer ${storedAccessToken}`,
                 'Content-Type': 'application/json'
@@ -129,7 +129,7 @@ export const AuthProvider: React.FC<{
               // Token expired, try to refresh it
               console.log('🔄 Token expired, attempting to refresh...');
               try {
-                const refreshResponse = await fetch(`${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000'}/api/v1/auth/refresh`, {
+                const refreshResponse = await fetch(`https://acquireflow-backend.onrender.com/auth/refresh`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json'

@@ -46,7 +46,7 @@ export const ResetPasswordForm: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/api/v1/auth/verify-reset-token`, {
+        const response = await fetch(`https://acquireflow.onrender.com/api/v1/auth/verify-reset-token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ resetToken })
@@ -87,7 +87,7 @@ export const ResetPasswordForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:3000/api/v1/auth/reset-password`, {
+      const response = await fetch(`https://acquireflow.onrender.com/api/v1/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resetToken, newPassword })
