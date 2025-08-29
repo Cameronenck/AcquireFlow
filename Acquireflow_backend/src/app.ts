@@ -45,9 +45,9 @@ class App {
       },
     }));
 
-    // CORS configuration
+    // CORS configuration - Allow all origins
     this.app.use(cors({
-      origin: config.cors.allowedOrigins,
+      origin: true, // This allows all origins
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
