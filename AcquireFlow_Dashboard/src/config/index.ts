@@ -1,7 +1,7 @@
 // Frontend configuration
 export const config = {
   // API configuration
-  apiUrl: import.meta.env?.VITE_API_URL || 'http://localhost:3000/api/v1',
+  apiUrl: import.meta.env?.VITE_API_URL || 'http://localhost:3000',
   
   // App configuration
   appName: 'AcquireFlow',
