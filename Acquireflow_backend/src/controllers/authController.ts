@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { AuthService } from '../services/authService';
+import AuthService from '../services/authService';
+import EmailService from '../services/emailService';
+import logger from '../utils/logger';
 import { CreateUserDto, UserLoginDto } from '../types/user';
-import { logger } from '../utils/logger';
-import { EmailService } from '../services/emailService';
 import { TwoFactorAuthService } from '../services/twoFactorAuthService';
 
 export class AuthController {
@@ -370,60 +370,65 @@ export class AuthController {
    * Request password reset
    * POST /api/auth/forgot-password
    */
-  static async requestPasswordReset(req: Request, res: Response): Promise<void> {
-    try {
-      const { email } = req.body;
+/**
+ * Request password reset
+ * POST /api/auth/forgot-password
+ */
+static async requestPasswordReset(req: Request, res: Response): Promise<void> {
+  try {
+    const { email } = req.body;
 
-      if (!email) {
-        res.status(400).json({
-          success: false,
-          message: 'Missing required field: email',
-        });
-        return;
-      }
-
-      // Request password reset
-      await AuthService.requestPasswordReset(email);
-
-      res.status(200).json({
-        success: true,
-        message: 'If an account with that email exists, a password reset link has been sent',
+    if (!email) {
+      res.status(400).json({
+        success: false,
+        message: 'Missing required field: email',
       });
-    } catch (error) {
-      logger.error('Password reset request failed', { error: (error as any).message, email: req.body.email });
-      
+      return;
+    }
+
+    // Request password reset
+    await AuthService.requestPasswordReset(email);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset link has been sent to your email',
+      note: 'Check the server console for email preview URL if using test account'
+    });
+  } catch (error) {
+    logger.error('Password reset request failed', { 
+      error: (error as any).message, 
+      errorType: (error as any).constructor.name,
+      email: req.body.email 
+    });
+    
+    // Handle "user not found"
+    if ((error as any).message === 'No account found with this email address') {
+      res.status(404).json({
+        success: false,
+        message: 'No account found with this email address',
+      });
+    } else {
       res.status(500).json({
         success: false,
         message: 'Internal server error',
       });
     }
   }
+}
+
 
   /**
    * Test email connection
-   * GET /api/auth/test-email
    */
-  static async testEmailConnection(_req: Request, res: Response): Promise<void> {
+  static async testEmailConnection(_req: Request, res: Response) {
     try {
-      const isConnected = await EmailService.testConnection();
-      
-      if (isConnected) {
-        res.status(200).json({
-          success: true,
-          message: 'SMTP connection successful',
-        });
-      } else {
-        res.status(500).json({
-          success: false,
-          message: 'SMTP connection failed',
-        });
-      }
+      const result = await EmailService.testConnection();
+      res.json(result);
     } catch (error) {
-      logger.error('Email connection test failed', { error: (error as any).message });
-      
+      logger.error('Email connection test failed:', error);
       res.status(500).json({
         success: false,
-        message: 'SMTP connection test failed',
+        message: 'Failed to test email connection'
       });
     }
   }
@@ -860,6 +865,38 @@ export class AuthController {
       res.status(500).json({
         success: false,
         message: 'Internal server error',
+      });
+    }
+  }
+
+  /**
+   * Debug SMTP configuration (without sensitive data)
+   * GET /api/auth/debug-smtp
+   */
+  static async debugSMTPConfig(_req: Request, res: Response): Promise<void> {
+    try {
+      const { config } = await import('../config/env');
+      
+      res.status(200).json({
+        success: true,
+        message: 'SMTP Configuration (sanitized)',
+        data: {
+          host: config.smtp.host,
+          port: config.smtp.port,
+          secure: config.smtp.secure,
+          user: config.smtp.user,
+          fromEmail: config.smtp.fromEmail,
+          fromName: config.smtp.fromName,
+          passwordSet: !!config.smtp.pass && config.smtp.pass.length > 0,
+          passwordLength: config.smtp.pass ? config.smtp.pass.length : 0
+        }
+      });
+    } catch (error) {
+      logger.error('SMTP config debug failed', { error: (error as any).message });
+      
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get SMTP configuration',
       });
     }
   }

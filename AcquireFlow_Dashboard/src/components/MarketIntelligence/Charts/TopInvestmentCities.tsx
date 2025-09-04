@@ -1,116 +1,66 @@
-import React from 'react';
-import { ArrowUpRight, Star, TrendingUp, MapPin, DollarSign, BarChart2, Eye, PlusCircle } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowUpRight, Star, TrendingUp, MapPin, BarChart2, Eye, PlusCircle } from 'lucide-react';
+import { propertyService, type LeaderboardItem } from '../../../services/propertyService';
+
 interface TopInvestmentCitiesProps {
   selectedMarket: string;
 }
-export const TopInvestmentCities: React.FC<TopInvestmentCitiesProps> = ({
-  selectedMarket
-}) => {
-  // Generate top investment cities (in a real app, this would come from an API)
-  const generateTopCities = () => {
-    // Base cities data
-    const cities = [{
-      name: 'Austin, TX',
-      score: 94,
-      priceGrowth: 8.7,
-      capRate: 5.2,
-      jobGrowth: 4.8,
-      affordability: 65,
-      inWatchlist: true
-    }, {
-      name: 'Raleigh, NC',
-      score: 92,
-      priceGrowth: 7.9,
-      capRate: 5.4,
-      jobGrowth: 4.3,
-      affordability: 72,
-      inWatchlist: false
-    }, {
-      name: 'Nashville, TN',
-      score: 90,
-      priceGrowth: 8.2,
-      capRate: 5.0,
-      jobGrowth: 3.9,
-      affordability: 68,
-      inWatchlist: true
-    }, {
-      name: 'Charlotte, NC',
-      score: 89,
-      priceGrowth: 7.6,
-      capRate: 5.3,
-      jobGrowth: 3.7,
-      affordability: 70,
-      inWatchlist: false
-    }, {
-      name: 'Tampa, FL',
-      score: 88,
-      priceGrowth: 9.1,
-      capRate: 4.9,
-      jobGrowth: 3.5,
-      affordability: 67,
-      inWatchlist: false
-    }, {
-      name: 'Phoenix, AZ',
-      score: 87,
-      priceGrowth: 7.8,
-      capRate: 5.1,
-      jobGrowth: 3.4,
-      affordability: 69,
-      inWatchlist: true
-    }, {
-      name: 'Boise, ID',
-      score: 86,
-      priceGrowth: 9.3,
-      capRate: 4.7,
-      jobGrowth: 3.2,
-      affordability: 64,
-      inWatchlist: false
-    }, {
-      name: 'Jacksonville, FL',
-      score: 85,
-      priceGrowth: 7.5,
-      capRate: 5.5,
-      jobGrowth: 3.1,
-      affordability: 75,
-      inWatchlist: false
-    }, {
-      name: 'Dallas, TX',
-      score: 84,
-      priceGrowth: 6.9,
-      capRate: 5.2,
-      jobGrowth: 3.6,
-      affordability: 71,
-      inWatchlist: true
-    }, {
-      name: 'Columbus, OH',
-      score: 83,
-      priceGrowth: 6.4,
-      capRate: 5.7,
-      jobGrowth: 2.9,
-      affordability: 78,
-      inWatchlist: false
-    }];
-    // If the selected market is in the list, highlight it
-    return cities.map(city => ({
-      ...city,
-      isCurrentMarket: city.name === selectedMarket
-    }));
-  };
-  const topCities = generateTopCities();
-  // Function to get color based on score
+
+export const TopInvestmentCities: React.FC<TopInvestmentCitiesProps> = ({ selectedMarket }) => {
+  const [items, setItems] = useState<LeaderboardItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await propertyService.getInvestmentLeaderboard();
+        if (mounted) setItems(data);
+      } catch (e: any) {
+        if (mounted) setError(e?.message || 'Failed to load leaderboard');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-emerald-600';
     if (score >= 80) return 'text-primary';
     if (score >= 70) return 'text-amber-500';
     return 'text-gray-600';
   };
-  // Function to get background color for rank
+
   const getRankBackground = (rank: number) => {
     if (rank === 1) return 'bg-emerald-500 text-white';
     if (rank === 2) return 'bg-emerald-400 text-white';
     if (rank === 3) return 'bg-emerald-300 text-white';
     return 'bg-gray-100 text-gray-700';
   };
+
+  const list = useMemo(() => {
+    const formatted = items.map((it) => ({
+      name: `${it.city}, ${it.state}`,
+      county: it.county,
+      score: it.investmentScore,
+      priceGrowth: it.priceGrowth,
+      capRate: it.capRate,
+      jobGrowth: it.jobGrowth,
+      affordability: it.affordability,
+      rank: it.rank,
+    }));
+    return formatted.map((city) => ({
+      ...city,
+      isCurrentMarket: city.name === selectedMarket,
+      inWatchlist: false,
+    }));
+  }, [items, selectedMarket]);
+
   return <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
       <div className="flex justify-between items-start mb-4">
         <div>
@@ -129,6 +79,8 @@ export const TopInvestmentCities: React.FC<TopInvestmentCitiesProps> = ({
         </button>
       </div>
       <div className="overflow-x-auto">
+        {loading && <div className="text-sm text-gray-500 p-3">Loading leaderboard...</div>}
+        {error && !loading && <div className="text-sm text-red-600 p-3">{error}</div>}
         <table className="min-w-full">
           <thead>
             <tr className="text-xs text-gray-500 border-b">
@@ -143,15 +95,16 @@ export const TopInvestmentCities: React.FC<TopInvestmentCitiesProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {topCities.map((city, index) => <tr key={index} className={`text-sm ${city.isCurrentMarket ? 'bg-emerald-50' : ''}`}>
+            {!loading && !error && list.map((city, index) => <tr key={index} className={`text-sm ${city.isCurrentMarket ? 'bg-emerald-50' : ''}`}>
                 <td className="py-2.5">
-                  <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${getRankBackground(index + 1)}`}>
-                    {index + 1}
+                  <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${getRankBackground(city.rank || index + 1)}`}>
+                    {city.rank || index + 1}
                   </span>
                 </td>
                 <td className="py-2.5">
                   <div className="flex items-center">
                     <span className="font-medium">{city.name}</span>
+                    {city.county && <span className="ml-2 text-xs text-gray-500">— {city.county}</span>}
                     {city.isCurrentMarket && <span className="ml-2 text-xs bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">
                         Current
                       </span>}
@@ -206,7 +159,7 @@ export const TopInvestmentCities: React.FC<TopInvestmentCitiesProps> = ({
         </table>
       </div>
       <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
-        <div className="text-xs text-gray-500">Data updated: June 2023</div>
+        <div className="text-xs text-gray-500">Data updated: {new Date().toLocaleDateString()}</div>
         <div className="flex space-x-2">
           <button className="px-3 py-1.5 text-xs bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
             Export Data

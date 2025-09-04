@@ -10,6 +10,7 @@ const router = Router();
  * @access  Public
  */
 router.get('/test-email', AuthController.testEmailConnection);
+router.get('/debug-smtp', AuthController.debugSMTPConfig);
 
 /**
  * @route   POST /api/auth/register

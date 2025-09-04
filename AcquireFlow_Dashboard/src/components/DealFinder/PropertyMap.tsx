@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -44,15 +44,34 @@ export const PropertyMap: React.FC<PropertyMapProps> = ({
   onSelectProperty
 }) => {
   const [map, setMap] = useState<L.Map | null>(null);
+  // Only use properties that have valid coordinates
+  const validProperties = useMemo(() => {
+    return properties.filter(p =>
+      Number.isFinite(p.lat) &&
+      Number.isFinite(p.lng) &&
+      Math.abs(p.lat) <= 90 &&
+      Math.abs(p.lng) <= 180
+    );
+  }, [properties]);
+
+  // Default map center (continental US)
+  const defaultCenter: [number, number] = useMemo(() => {
+    if (validProperties.length > 0) {
+      return [validProperties[0].lat, validProperties[0].lng];
+    }
+    return [39.8283, -98.5795];
+  }, [validProperties]);
   // Center map on properties
   useEffect(() => {
-    if (map && properties.length > 0) {
-      const bounds = L.latLngBounds(properties.map(property => [property.lat, property.lng]));
-      map.fitBounds(bounds, {
-        padding: [50, 50]
-      });
+    if (map && validProperties.length > 0) {
+      const bounds = L.latLngBounds(
+        validProperties.map(property => [property.lat, property.lng])
+      );
+      map.fitBounds(bounds, { padding: [50, 50] });
+    } else if (map) {
+      map.setView(defaultCenter, 4);
     }
-  }, [map, properties]);
+  }, [map, validProperties, defaultCenter]);
   // Create custom marker icons
   const createMarkerIcon = (property: Property) => {
     const isSelected = selectedProperties.includes(property.id);
@@ -189,10 +208,11 @@ export const PropertyMap: React.FC<PropertyMapProps> = ({
       `}</style>
       <MapContainer style={{
       height: '100%',
-      width: '100%'
-    }} zoom={10} scrollWheelZoom={true} whenCreated={setMap}>
+      width: '100%',
+      minHeight: '300px'
+    }} center={defaultCenter} zoom={validProperties.length > 0 ? 10 : 4} scrollWheelZoom={true} whenCreated={setMap}>
         <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-        {properties.map(property => <Marker key={property.id} position={[property.lat, property.lng]} icon={createMarkerIcon(property)}>
+        {validProperties.map(property => <Marker key={property.id} position={[property.lat, property.lng]} icon={createMarkerIcon(property)}>
             <Popup className="property-popup">
               <div className="property-popup-image" style={{
             backgroundImage: `url(${property.image})`

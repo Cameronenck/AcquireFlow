@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BarChart2, Building, Calculator, ChevronDown, LineChart, Map, Target, TrendingDown, TrendingUp, Users, Bell, Search, Download, Filter, PlusCircle, Info, RefreshCw } from 'lucide-react';
 import { DataVisualizationGrid } from './DataVisualizationGrid';
 import { CityAnalysisDashboard } from './CityAnalysisDashboard/CityAnalysisDashboard';
@@ -13,22 +13,46 @@ export const MarketIntelligence = () => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   // Available markets for selection
   const availableMarkets = ['Orlando, FL', 'Miami, FL', 'Tampa, FL', 'Jacksonville, FL', 'Fort Lauderdale, FL', 'West Palm Beach, FL', 'Naples, FL', 'Sarasota, FL', 'Fort Myers, FL', 'Daytona Beach, FL'];
-  // Market metrics (would come from API in a real app)
-  const marketMetrics = {
-    medianPrice: 375000,
-    priceChange: 2.7,
-    inventory: 3245,
-    inventoryChange: -5.2,
-    daysOnMarket: 18,
-    daysOnMarketChange: -3,
-    opportunityScore: 72
-  };
+  // Market metrics (dynamic)
+  const [marketMetrics, setMarketMetrics] = useState({
+    medianPrice: 0,
+    priceChange: 0,
+    inventory: 0,
+    inventoryChange: 0,
+    daysOnMarket: 0,
+    daysOnMarketChange: 0,
+    opportunityScore: 0
+  });
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const { propertyService } = await import('../../services/propertyService');
+        const data = await propertyService.getMarketKpis(selectedMarket);
+        if (mounted) {
+          setMarketMetrics({
+            medianPrice: data.medianPrice,
+            priceChange: data.priceChangeMoM,
+            inventory: data.inventory,
+            inventoryChange: data.inventoryChangeMoM,
+            daysOnMarket: data.daysOnMarket,
+            daysOnMarketChange: data.daysOnMarketChangeMoM,
+            opportunityScore: data.opportunityScore
+          });
+        }
+      } catch (e) {
+        // keep defaults on error
+      }
+    })();
+    return () => { mounted = false; };
+  }, [selectedMarket]);
   // Handle market selection changes
-  const handleMarketChange = market => {
+  const handleMarketChange = (market: string) => {
     setSelectedMarket(market);
   };
   // Handle time range changes
-  const handleTimeRangeChange = range => {
+  const handleTimeRangeChange = (range: string) => {
     setTimeRange(range);
   };
   return <div className="flex flex-col h-full bg-gray-50">
@@ -54,8 +78,8 @@ export const MarketIntelligence = () => {
                 <div className={`absolute inset-y-0 left-0 flex items-center pl-3 cursor-pointer ${isSearchExpanded ? 'text-gray-500' : 'text-gray-600'}`} onClick={() => setIsSearchExpanded(!isSearchExpanded)}>
                   <Search size={18} />
                 </div>
-                <input type="text" className={`w-full py-2 pl-10 pr-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-300 ${isSearchExpanded ? 'opacity-100' : 'opacity-0'}`} placeholder="Search markets..." onBlur={() => {
-                if (!event.target.value) {
+                <input type="text" className={`w-full py-2 pl-10 pr-4 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-300 ${isSearchExpanded ? 'opacity-100' : 'opacity-0'}`} placeholder="Search markets..." onBlur={(e) => {
+                if (!e.currentTarget.value) {
                   setIsSearchExpanded(false);
                 }
               }} />
@@ -251,7 +275,7 @@ export const MarketIntelligence = () => {
         </div>
       </div>
       {/* Add some global styles for animations */}
-      <style jsx global>{`
+      <style>{`
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
         }

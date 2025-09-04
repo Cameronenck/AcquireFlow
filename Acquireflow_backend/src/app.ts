@@ -13,6 +13,7 @@ import { initializeFirebase } from './config/firebase';
 import authRoutes from './routes/authRoutes';
 import profileRoutes from './routes/profileRoutes';
 import loiTemplateRoutes from './routes/loiTemplateRoutes';
+import propertyRoutes from './routes/propertyRoutes';
 
 // Import middlewares
 
@@ -45,13 +46,19 @@ class App {
       },
     }));
 
-    // CORS configuration - Allow all origins
-    this.app.use(cors({
-      origin: true, // This allows all origins
+    // CORS configuration - Reflect origin and handle preflight explicitly
+    const corsOptions: cors.CorsOptions = {
+      origin: true,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    }));
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+      exposedHeaders: ['Content-Type', 'Content-Length'],
+      maxAge: 86400,
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+    };
+    this.app.use(cors(corsOptions));
+    this.app.options('*', cors(corsOptions));
 
     // Body parsing middleware
     this.app.use(express.json({ limit: '10mb' }));
@@ -100,6 +107,7 @@ class App {
     this.app.use(`/api/${config.apiVersion}/auth`, authRoutes);
     this.app.use(`/api/${config.apiVersion}/profile`, profileRoutes);
     this.app.use(`/api/${config.apiVersion}/loi-templates`, loiTemplateRoutes);
+    this.app.use(`/api/${config.apiVersion}/properties`, propertyRoutes);
 
     // 404 handler for undefined routes
     this.app.use('*', (req, res) => {

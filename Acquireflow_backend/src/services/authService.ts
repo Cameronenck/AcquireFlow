@@ -1,12 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-
 import { User, IUserDocument } from '../models/User';
 import { LoginActivity } from '../models/LoginActivity';
 import { config } from '../config/env';
 import { CreateUserDto, UserLoginDto, AuthResponse, UserResponse } from '../types/user';
 import { verifyIdToken, getAuth } from '../config/firebase';
-import { EmailService } from './emailService';
+import EmailService from './emailService';
 import { logger } from '../utils/logger';
 import { detectDeviceInfo } from '../utils/deviceDetector';
 import { TwoFactorAuthService } from './twoFactorAuthService';
@@ -324,29 +323,48 @@ export class AuthService {
    */
   static async requestPasswordReset(email: string): Promise<void> {
     try {
+      logger.info('Password reset requested for email:', email);
+      
       const user = await User.findOne({ email: email.toLowerCase() });
       if (!user) {
-        // Don't reveal if user exists or not
-        return;
+        logger.info('User not found for email:', email);
+        throw new Error('No account found with this email address');
       }
-
-      // Generate reset token
+  
+      logger.info('User found, generating reset token for:', email);
+  
+      // Generate reset token (15 minutes expiry)
       const resetToken = jwt.sign(
         { userId: (user as any)._id.toString(), type: 'password_reset' },
         config.jwt.secret,
-        { expiresIn: '1h' }
+        { expiresIn: '15m' }
       );
-
-      // Send password reset email
+  
+      // Prepare user name
       const userName = user.firstName || user.email.split('@')[0] || 'User';
-      await EmailService.sendPasswordResetEmail(email, resetToken, userName);
+  
+      logger.info('Sending password reset email to:', email, 'for user:', userName);
+  
+      // ✅ Fixed parameter order
+      await EmailService.sendPasswordResetEmail(email, userName, resetToken);
       
-      logger.info('Password reset email sent successfully', { email, userId: (user as any)._id });
+      logger.info('Password reset email sent successfully', { 
+        email, 
+        userId: (user as any)._id 
+      });
     } catch (error) {
-      logger.error('Failed to send password reset email', { error: (error as any).message, email });
+      if ((error as any).message === 'No account found with this email address') {
+        throw error;
+      }
+      
+      logger.error('Failed to send password reset email', { 
+        error: (error as any).message, 
+        email 
+      });
       throw new Error('Failed to send password reset email. Please try again later.');
     }
   }
+  
 
   /**
    * Verify reset token and get user info

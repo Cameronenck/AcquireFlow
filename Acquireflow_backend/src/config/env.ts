@@ -43,37 +43,18 @@ const envSchema = Joi.object({
   TWILIO_PHONE_NUMBER: Joi.string()
     .required(),
   
-  // SMTP Configuration (for Nodemailer)
-  SMTP_HOST: Joi.string()
-    .default('smtp.gmail.com')
-    .description('SMTP server host'),
-  
-  SMTP_PORT: Joi.number()
-    .default(587)
-    .description('SMTP server port'),
-  
-  SMTP_SECURE: Joi.boolean()
-    .default(false)
-    .description('Use secure connection (TLS)'),
-  
-  SMTP_USER: Joi.string()
-    .email()
-    .required()
-    .description('SMTP username/email'),
-  
-  SMTP_PASS: Joi.string()
-    .required()
-    .description('SMTP password/app password'),
-  
-  SMTP_FROM_EMAIL: Joi.string()
-    .email()
-    .default(Joi.ref('SMTP_USER'))
-    .description('From email address'),
-  
-  SMTP_FROM_NAME: Joi.string()
-    .default('AcquireFlow')
-    .description('From name'),
-  
+  // SMTP Configuration
+  SMTP_HOST: Joi.string().required(),
+  SMTP_PORT: Joi.number().required(),
+  SMTP_SECURE: Joi.boolean().required(),
+  SMTP_USER: Joi.string().required(),
+  SMTP_PASS: Joi.string().min(1).required(),
+  SMTP_FROM_EMAIL: Joi.string().email().required(),
+  SMTP_FROM_NAME: Joi.string().required(),
+
+  // App Configuration
+  FRONTEND_URL: Joi.string().uri().default('http://localhost:5173'),
+
   // Firebase (optional in development)
   FIREBASE_PROJECT_ID: Joi.string()
     .optional(),
@@ -168,6 +149,11 @@ export const config = {
     pass: envVars.SMTP_PASS,
     fromEmail: envVars.SMTP_FROM_EMAIL,
     fromName: envVars.SMTP_FROM_NAME,
+  },
+
+  // App Configuration
+  app: {
+    frontendUrl: envVars.FRONTEND_URL,
   },
   
   // Firebase

@@ -1,3 +1,29 @@
+## Investment Leaderboard API
+
+Endpoint: `GET /api/v1/properties/leaderboard`
+
+Returns Top 10 cities to invest in with computed metrics:
+
+- priceGrowth (%): Median current price vs median last-year sale price
+- capRate (%): (Median Rent × 12) / Median Home Price × 100
+- jobGrowth (%): Placeholder 2–5% until BLS/Census integration
+- affordability (0–100): Normalized Median Income / Median Home Price × 100
+- investmentScore (0–100): Weighted composite (30% priceGrowth, 30% capRate, 20% jobGrowth, 20% affordability)
+
+Configuration:
+
+```
+REAL_ESTATE_API_KEY=your-realestateapi-key-here
+# Optional future keys
+BLS_API_KEY=
+CENSUS_API_KEY=
+```
+
+Notes:
+
+- Uses `https://api.realestateapi.com/v2/PropertySearch` to pull a city-wide sample and aggregates by `city, state`.
+- County is inferred by mode of records per city.
+- Job growth is stubbed; replace `getJobGrowthPct` in `src/services/leaderboardService.ts` with real data.
 # AcquireFlow Backend
 
 A robust Node.js/Express backend API for AcquireFlow - a real estate lead generation platform with SMS/email capabilities.

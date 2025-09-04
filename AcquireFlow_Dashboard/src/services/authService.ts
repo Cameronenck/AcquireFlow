@@ -122,7 +122,7 @@ export const authService = {
     expiresIn: number;
     user: AuthUser;
   }> {
-    const res = await fetch(`${API_BASE}/v1/auth/login/firebase`, {
+    const res = await fetch(`${API_BASE}/auth/login/firebase`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ idToken })

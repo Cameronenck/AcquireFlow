@@ -1,5 +1,5 @@
 import { TwoFactorAuth, OTPCode } from '../models/TwoFactorAuth';
-import { EmailService } from './emailService';
+import EmailService from './emailService';
 import { logger } from '../utils/logger';
 
 export class TwoFactorAuthService {

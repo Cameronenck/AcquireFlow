@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Lock, Eye, EyeOff, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
+// Get API base URL from environment or use localhost for development
+const API_BASE = `${(import.meta as any).env?.VITE_API_URL || 'http://localhost:3000'}`;
+
 export const ResetPasswordForm: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -46,7 +49,7 @@ export const ResetPasswordForm: React.FC = () => {
       }
 
       try {
-        const response = await fetch(`https://acquireflow.onrender.com/api/v1/auth/verify-reset-token`, {
+        const response = await fetch(`${API_BASE}/auth/verify-reset-token`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ resetToken })
@@ -87,7 +90,7 @@ export const ResetPasswordForm: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://acquireflow.onrender.com/api/v1/auth/reset-password`, {
+      const response = await fetch(`${API_BASE}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resetToken, newPassword })

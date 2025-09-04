@@ -30,7 +30,7 @@ MONGODB_URI=your_mongodb_connection_string
 
 ### Option 2: Outlook/Hotmail
 ```bash
-SMTP_HOST=smtp-mail.outlook.com
+SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SMTP_SECURE=false
 ```

@@ -43,7 +43,7 @@ class LOITemplateService {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/v1/loi-templates`;
+    this.baseUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/loi-templates`;
   }
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
