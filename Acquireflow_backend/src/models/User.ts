@@ -27,6 +27,8 @@ export interface IUserDocument extends Document {
     cvv: string;
     billingZipCode: string;
   };
+  stripeSubscriptionId?: string;
+  trialEndDate?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
   hashPassword(): Promise<void>;
   hashCardDetails(): Promise<void>;
@@ -130,6 +132,13 @@ const userSchema = new Schema<IUserDocument>({
     expiryDate: { type: String, required: false },
     cvv: { type: String, required: false },
     billingZipCode: { type: String, required: false },
+  },
+  stripeSubscriptionId: {
+    type: String,
+    trim: true,
+  },
+  trialEndDate: {
+    type: Date,
   },
 }, {
   timestamps: true,
