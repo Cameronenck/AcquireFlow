@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AdminController } from '../controllers/adminController';
-import { authMiddleware } from '../middlewares/authMiddleware';
+import { authMiddleware, requireAdmin } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -9,6 +9,6 @@ const router = Router();
  * @desc    List all users — includes stripeSubscriptionId + trialEndDate (ACQFLOW-204)
  * @access  Private (admin)
  */
-router.get('/users', authMiddleware, AdminController.getAllUsers);
+router.get('/users', authMiddleware, requireAdmin, AdminController.getAllUsers);
 
 export default router;
