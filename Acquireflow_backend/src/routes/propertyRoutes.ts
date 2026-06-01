@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import axios from 'axios';
 import { LeaderboardService } from '../services/leaderboardService';
+import { mlsSearch } from '../controllers/mlsController';
 
 const router = Router();
 
@@ -32,6 +33,13 @@ interface PropertySearchFilters {
   lastSaleDate?: string;
   medianIncome?: number;
 }
+
+/**
+ * POST /api/v1/properties/mls-search
+ * MLS-specific property search used by DealBot.
+ * Forwards requests to RealEstateAPI with mls_active:true enforced.
+ */
+router.post('/mls-search', mlsSearch);
 
 /**
  * GET /api/v1/properties/search
