@@ -14,6 +14,7 @@ import authRoutes from './routes/authRoutes';
 import profileRoutes from './routes/profileRoutes';
 import loiTemplateRoutes from './routes/loiTemplateRoutes';
 import propertyRoutes from './routes/propertyRoutes';
+import adminRoutes from './routes/adminRoutes';
 
 // Import middlewares
 
@@ -108,6 +109,7 @@ class App {
     this.app.use(`/api/${config.apiVersion}/profile`, profileRoutes);
     this.app.use(`/api/${config.apiVersion}/loi-templates`, loiTemplateRoutes);
     this.app.use(`/api/${config.apiVersion}/properties`, propertyRoutes);
+    this.app.use(`/api/${config.apiVersion}/admin`, adminRoutes);
 
     // 404 handler for undefined routes
     this.app.use('*', (req, res) => {
