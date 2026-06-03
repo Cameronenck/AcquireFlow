@@ -901,6 +901,37 @@ static async requestPasswordReset(req: Request, res: Response): Promise<void> {
     }
   }
 
+  /**
+   * Regenerate 2FA backup codes
+   * POST /api/auth/2fa/regenerate-backup-codes
+   */
+  static async regenerate2FABackupCodes(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).user?.id;
+      if (!userId) {
+        res.status(401).json({ success: false, message: 'Authentication required' });
+        return;
+      }
+
+      const plainCodes = await TwoFactorAuthService.regenerateBackupCodes(userId);
+
+      res.json({
+        success: true,
+        message: 'Backup codes regenerated. Save these codes — they cannot be retrieved again.',
+        backupCodes: plainCodes,
+      });
+    } catch (error: any) {
+      if (error.message === '2FA is not enabled for this user') {
+        res.status(400).json({ success: false, message: error.message });
+        return;
+      }
+      logger.error('2FA backup code regeneration failed', {
+        error: error.message,
+        userId: (req as any).user?.id,
+      });
+      res.status(500).json({ success: false, message: 'Failed to regenerate backup codes' });
+    }
+  }
 
 }
 

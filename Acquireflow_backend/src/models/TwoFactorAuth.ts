@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface ITwoFactorAuth extends Document {
   userId: mongoose.Types.ObjectId;
   isEnabled: boolean;
+  backupCodes: string[];   // SHA-256 hashed single-use recovery codes
   lastUsedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -27,6 +28,10 @@ const TwoFactorAuthSchema = new Schema<ITwoFactorAuth>({
   isEnabled: {
     type: Boolean,
     default: false,
+  },
+  backupCodes: {
+    type: [String],
+    default: [],
   },
   lastUsedAt: {
     type: Date,

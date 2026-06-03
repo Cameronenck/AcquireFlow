@@ -147,9 +147,9 @@ router.post('/2fa/send-disable-otp', authMiddleware, AuthController.sendDisable2
 
 /**
  * @route   POST /api/auth/2fa/regenerate-backup-codes
- * @desc    Regenerate backup codes
+ * @desc    Regenerate 2FA backup codes (returns 8 single-use plain-text codes once)
  * @access  Private
  */
-
+router.post('/2fa/regenerate-backup-codes', authMiddleware, AuthController.regenerate2FABackupCodes);
 
 export default router;
