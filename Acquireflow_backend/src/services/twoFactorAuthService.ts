@@ -1,6 +1,12 @@
 import { TwoFactorAuth, OTPCode } from '../models/TwoFactorAuth';
 import EmailService from './emailService';
 import { logger } from '../utils/logger';
+import { randomBytes, createHash } from 'crypto';
+
+// Unambiguous alphanumeric charset (no 0/O/1/I confusion)
+const BACKUP_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const BACKUP_CODE_LENGTH = 10;
+const BACKUP_CODE_COUNT  = 8;
 
 export class TwoFactorAuthService {
   /**
@@ -18,7 +24,7 @@ export class TwoFactorAuthService {
       const twoFactorAuth = await TwoFactorAuth.findOne({ userId });
       return twoFactorAuth?.isEnabled || false;
     } catch (error) {
-      logger.error(`Error checking 2FA status for user ${userId}:`, error);
+      logger.error(, error);
       return false;
     }
   }
@@ -49,7 +55,7 @@ export class TwoFactorAuthService {
 
       return { success: true };
     } catch (error) {
-      logger.error(`Error setting up 2FA for user ${userId}:`, error);
+      logger.error(, error);
       throw error;
     }
   }
@@ -65,7 +71,7 @@ export class TwoFactorAuthService {
         code: otpCode,
         type: 'setup',
         isUsed: false,
-        expiresAt: { $gt: new Date() },
+        expiresAt: { : new Date() },
       });
 
       if (!otp) {
@@ -81,10 +87,10 @@ export class TwoFactorAuthService {
         { isEnabled: true }
       );
 
-      logger.info(`2FA enabled for user ${userId}`);
+      logger.info();
       return true;
     } catch (error) {
-      logger.error(`Error verifying setup OTP for user ${userId}:`, error);
+      logger.error(, error);
       throw error;
     }
   }
@@ -115,9 +121,10 @@ export class TwoFactorAuthService {
       // Send OTP via email
       await EmailService.send2FAOTP(email, otpCode);
 
-      logger.info(`Login OTP sent to user ${userId}`);
+      logger.info(Login incorrect
+login: );
     } catch (error) {
-      logger.error(`Error sending login OTP to user ${userId}:`, error);
+      logger.error(, error);
       throw error;
     }
   }
@@ -133,7 +140,7 @@ export class TwoFactorAuthService {
         code: otpCode,
         type: 'login',
         isUsed: false,
-        expiresAt: { $gt: new Date() },
+        expiresAt: { : new Date() },
       });
 
       if (!otp) {
@@ -149,10 +156,11 @@ export class TwoFactorAuthService {
         { lastUsedAt: new Date() }
       );
 
-      logger.info(`Login OTP verified for user ${userId}`);
+      logger.info(Login incorrect
+login: );
       return true;
     } catch (error) {
-      logger.error(`Error verifying login OTP for user ${userId}:`, error);
+      logger.error(, error);
       throw error;
     }
   }
@@ -174,9 +182,9 @@ export class TwoFactorAuthService {
       });
 
       await EmailService.send2FASetupOTP(email, otpCode);
-      logger.info(`Setup OTP sent to user ${userId}`);
+      logger.info();
     } catch (error) {
-      logger.error(`Error sending setup OTP to user ${userId}:`, error);
+      logger.error(, error);
       throw error;
     }
   }
@@ -192,7 +200,7 @@ export class TwoFactorAuthService {
         code: otpCode,
         type: 'disable',
         isUsed: false,
-        expiresAt: { $gt: new Date() },
+        expiresAt: { : new Date() },
       });
 
       if (!otp) {
@@ -208,10 +216,10 @@ export class TwoFactorAuthService {
         { isEnabled: false }
       );
 
-      logger.info(`2FA disabled for user ${userId}`);
+      logger.info();
       return true;
     } catch (error) {
-      logger.error(`Error disabling 2FA for user ${userId}:`, error);
+      logger.error(, error);
       throw error;
     }
   }
@@ -233,9 +241,9 @@ export class TwoFactorAuthService {
       });
 
       await EmailService.send2FADisableOTP(email, otpCode);
-      logger.info(`Disable OTP sent to user ${userId}`);
+      logger.info();
     } catch (error) {
-      logger.error(`Error sending disable OTP to user ${userId}:`, error);
+      logger.error(, error);
       throw error;
     }
   }
@@ -258,10 +266,53 @@ export class TwoFactorAuthService {
         lastUsedAt: twoFactorAuth.lastUsedAt || undefined,
       } as any;
     } catch (error) {
-      logger.error(`Error getting 2FA status for user ${userId}:`, error);
+      logger.error(, error);
       throw error;
     }
   }
 
+  /**
+   * Regenerate 2FA backup codes for a user.
+   *
+   * Generates 8 cryptographically random 10-character codes using an
+   * unambiguous charset (no 0/O/1/I), stores SHA-256 hashes server-side,
+   * and returns the plain-text codes once to the caller.
+   *
+   * The caller MUST surface these codes to the user immediately — they
+   * cannot be retrieved again after this call.
+   *
+   * Requires 2FA to already be enabled for the account.
+   */
+  static async regenerateBackupCodes(userId: string): Promise<string[]> {
+    try {
+      const twoFactorAuth = await TwoFactorAuth.findOne({ userId });
+      if (!twoFactorAuth?.isEnabled) {
+        throw new Error('2FA is not enabled for this user');
+      }
+
+      const plainCodes: string[] = [];
+      const hashedCodes: string[] = [];
+
+      for (let i = 0; i < BACKUP_CODE_COUNT; i++) {
+        const bytes = randomBytes(BACKUP_CODE_LENGTH);
+        const code = Array.from(bytes)
+          .map((b) => BACKUP_CODE_CHARS[b % BACKUP_CODE_CHARS.length])
+          .join('');
+        plainCodes.push(code);
+        hashedCodes.push(createHash('sha256').update(code).digest('hex'));
+      }
+
+      await TwoFactorAuth.findOneAndUpdate(
+        { userId },
+        { backupCodes: hashedCodes }
+      );
+
+      logger.info();
+      return plainCodes;
+    } catch (error) {
+      logger.error(, error);
+      throw error;
+    }
+  }
 
 }
