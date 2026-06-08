@@ -779,17 +779,22 @@ Sincerely,
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">
-                  Inspection Period
+                  Inspection Period (Days)
                 </label>
                 <div className="relative">
                   <Clock size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <select className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" value={inspectionPeriod} onChange={e => setInspectionPeriod(parseInt(e.target.value))}>
-                    <option value={3}>3 days</option>
-                    <option value={5}>5 days</option>
-                    <option value={7}>7 days</option>
-                    <option value={10}>10 days</option>
-                    <option value={14}>14 days</option>
-                  </select>
+                  <input 
+                    type="number" 
+                    min="0" 
+                    max="365" 
+                    value={inspectionPeriod} 
+                    onChange={e => {
+                      const val = Math.max(0, Math.min(365, parseInt(e.target.value) || 0));
+                      setInspectionPeriod(val);
+                    }}
+                    className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                    placeholder="Enter number of days"
+                  />
                 </div>
               </div>
             </div>
