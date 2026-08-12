@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import axios from 'axios';
 import { LeaderboardService } from '../services/leaderboardService';
 import { mlsSearch } from '../controllers/mlsController';
+import { authMiddleware, AuthenticatedRequest } from '../middlewares/authMiddleware';
 
 const router = Router();
 
@@ -45,7 +46,7 @@ router.post('/mls-search', mlsSearch);
  * GET /api/v1/properties/search
  * Proxy endpoint to call the real estate API
  */
-router.get('/search', async (req: Request, res: Response) => {
+router.get('/search', authMiddleware, async (req: Request, res: Response) => {
   try {
     console.log('🏠 Property search request received');
     console.log('Query params:', req.query);
@@ -229,7 +230,7 @@ router.get('/search', async (req: Request, res: Response) => {
  * GET /api/v1/properties/featured
  * Get featured properties (default search)
  */
-router.get('/featured', async (_req: Request, res: Response) => {
+router.get('/featured', authMiddleware, async (_req: Request, res: Response) => {
   try {
     console.log('🏠 Featured properties request received');
 
@@ -305,7 +306,7 @@ router.get('/featured', async (_req: Request, res: Response) => {
  * GET /api/v1/properties/market-kpis
  * Query: city=Orlando&state=FL
  */
-router.get('/market-kpis', async (req: Request, res: Response) => {
+router.get('/market-kpis', authMiddleware, async (req: Request, res: Response) => {
   try {
     const city = ((req.query as any)['city'] as string || '').trim();
     const state = ((req.query as any)['state'] as string || '').trim();
@@ -331,7 +332,7 @@ router.get('/market-kpis', async (req: Request, res: Response) => {
  * GET /api/v1/properties/leaderboard
  * Compute and return Top 10 cities to invest in
  */
-router.get('/leaderboard', async (_req: Request, res: Response) => {
+router.get('/leaderboard', authMiddleware, async (_req: Request, res: Response) => {
   try {
     const top10 = await LeaderboardService.computeLeaderboard();
     return res.json({ success: true, data: top10 });
@@ -341,7 +342,7 @@ router.get('/leaderboard', async (_req: Request, res: Response) => {
   }
 });
 
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', authMiddleware, async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     console.log('🏠 Property details request for ID:', id);
