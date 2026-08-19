@@ -28,7 +28,8 @@ import {
   Target,
   DollarSign,
   MapPin,
-  Users
+  Users,
+  Loader2
 } from 'lucide-react'
 import Sidebar from '@/components/Sidebar'
 import Header from '@/components/Header'
@@ -205,15 +206,102 @@ export default function CommunicationsPage() {
   const [showStageDropdown, setShowStageDropdown] = useState<number | null>(null)
   
   // Pipeline integration
-  const { deals, getDealsByContact, moveDeal } = usePipeline()
+  const { deals, getDealsByContact, moveDeal, addDeal } = usePipeline()
+
+  // Track conversations added to pipeline in this session (keyed by conversation.id)
+  // Using a Set so state never bleeds between conversations
+  const [addedConversationIds, setAddedConversationIds] = useState<Set<number>>(new Set())
+  // Track the conversation currently being processed (for loading spinner)
+  const [addingConversationId, setAddingConversationId] = useState<number | null>(null)
   
-  // Get pipeline stage for a contact
+  // Get pipeline stage for a contact — checks full address, not just first word, to
+  // avoid false positives on addresses that share a house number.
   const getContactPipelineStage = (contactName: string, propertyAddress: string) => {
     const contactDeals = deals.filter(deal => 
       deal.contact.name === contactName && 
-      deal.property.address.includes(propertyAddress.split(' ')[0])
+      deal.property.address.toLowerCase() === propertyAddress.toLowerCase()
     )
     return contactDeals.length > 0 ? contactDeals[0].stage : null
+  }
+
+  // Derive whether a conversation's deal is already in the pipeline.
+  // This is computed at render time from context — NOT from a click-set boolean —
+  // so it correctly reflects pre-existing pipeline entries on first load.
+  const isConversationInPipeline = (conversation: typeof conversations[number]): boolean => {
+    return getContactPipelineStage(conversation.contactName, conversation.propertyAddress) !== null
+  }
+
+  // Determine the button state for a conversation:
+  //   'in-pipeline'  — deal already exists (show gray disabled "Already in Pipeline")
+  //   'just-added'   — user added it during this session (show green "Added to Pipeline ✓")
+  //   'adding'       — add in progress (show spinner)
+  //   'can-add'      — ready to add (show active "Add to Pipeline" button)
+  type AddToPipelineState = 'in-pipeline' | 'just-added' | 'adding' | 'can-add'
+  const getAddToPipelineState = (conversation: typeof conversations[number]): AddToPipelineState => {
+    if (isConversationInPipeline(conversation)) return 'in-pipeline'
+    if (addingConversationId === conversation.id) return 'adding'
+    if (addedConversationIds.has(conversation.id)) return 'just-added'
+    return 'can-add'
+  }
+
+  // Add a conversation's property + contact to the pipeline
+  const handleInboxAddToPipeline = (conversation: typeof conversations[number]) => {
+    // Guard: don't double-add
+    if (getAddToPipelineState(conversation) !== 'can-add') return
+
+    setAddingConversationId(conversation.id)
+
+    // Build deal object from conversation data
+    const newDeal = {
+      property: {
+        address: conversation.propertyAddress,
+        city: conversation.location.split(', ')[0] ?? '',
+        state: conversation.location.split(', ')[1] ?? '',
+        zipCode: '',
+        price: conversation.propertyValue,
+        propertyType: 'Single Family' as const,
+        image: '/property-placeholder.jpg',
+      },
+      contact: {
+        id: `contact-inbox-${conversation.id}-${Date.now()}`,
+        name: conversation.contactName,
+        email: '',
+        phone: '',
+        company: conversation.company,
+        role: conversation.role,
+        avatar: conversation.avatar,
+        responseRate: conversation.responseRate,
+        relationshipScore: 5,
+      },
+      stage: 'lead' as const,
+      value: Math.round(conversation.propertyValue * 0.85),
+      priority: (conversation.priority === 'hot' ? 'high' : conversation.priority === 'warm' ? 'medium' : 'low') as 'high' | 'medium' | 'low',
+      stage_history: [{
+        stage: 'lead' as const,
+        timestamp: new Date().toISOString(),
+        userId: 'user-1',
+        notes: 'Added from Inbox'
+      }],
+      messages: [],
+      documents: [],
+      activities: [{
+        id: `act-inbox-${Date.now()}`,
+        type: 'stage_change' as const,
+        description: 'Property added to pipeline from Inbox',
+        timestamp: new Date().toISOString(),
+        userId: 'user-1'
+      }],
+      notes: `Lead sourced from Inbox conversation. Campaign type: ${conversation.campaignType}.`,
+      tags: ['inbox', conversation.campaignType, conversation.priority],
+      strategy: 'wholesaling' as const,
+    }
+
+    addDeal(newDeal)
+
+    // Mark as successfully added — state is keyed per conversation.id so it
+    // never incorrectly applies to a different conversation
+    setAddedConversationIds(prev => new Set(prev).add(conversation.id))
+    setAddingConversationId(null)
   }
   
   // Get pipeline stage badge color
@@ -795,10 +883,58 @@ export default function CommunicationsPage() {
                 <Calendar className="w-4 h-4" />
                 Schedule Follow-up
               </button>
-              <button className="w-full flex items-center gap-2 border border-border-color py-2 px-4 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors duration-200">
-                <Plus className="w-4 h-4" />
-                Add to Campaign
-              </button>
+
+              {/* Add to Pipeline button — state derived from pipeline context, not from a
+                  click-set boolean, so it correctly shows "Already in Pipeline" for contacts
+                  that are pre-existing in the pipeline, and never shows that state on the
+                  very first click for new contacts. */}
+              {(() => {
+                const pipelineState = getAddToPipelineState(selectedConversation)
+                if (pipelineState === 'in-pipeline') {
+                  return (
+                    <button
+                      disabled
+                      className="w-full flex items-center gap-2 border border-border-color py-2 px-4 rounded-lg text-text-muted bg-bg-tertiary cursor-not-allowed transition-colors duration-200"
+                    >
+                      <CheckCircle className="w-4 h-4 text-medium-gray" />
+                      Already in Pipeline
+                    </button>
+                  )
+                }
+                if (pipelineState === 'adding') {
+                  return (
+                    <button
+                      disabled
+                      className="w-full flex items-center gap-2 border border-border-color py-2 px-4 rounded-lg text-text-muted bg-bg-tertiary cursor-not-allowed transition-colors duration-200"
+                    >
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Adding...
+                    </button>
+                  )
+                }
+                if (pipelineState === 'just-added') {
+                  return (
+                    <button
+                      disabled
+                      className="w-full flex items-center gap-2 border border-brand-green/40 bg-brand-green/10 py-2 px-4 rounded-lg text-brand-green cursor-default transition-colors duration-200"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      Added to Pipeline ✓
+                    </button>
+                  )
+                }
+                // 'can-add' — default state: clickable "Add to Pipeline"
+                return (
+                  <button
+                    onClick={() => handleInboxAddToPipeline(selectedConversation)}
+                    className="w-full flex items-center gap-2 border border-ocean-blue/40 bg-ocean-blue/5 text-ocean-blue py-2 px-4 rounded-lg font-medium hover:bg-ocean-blue hover:text-white transition-colors duration-200"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add to Pipeline
+                  </button>
+                )
+              })()}
+
               <button className="w-full flex items-center gap-2 border border-border-color py-2 px-4 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors duration-200">
                 <Edit3 className="w-4 h-4" />
                 Update Notes
